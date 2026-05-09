@@ -287,7 +287,7 @@ const stepActions: UIAction[][] = [
     {
       kind: 'wait',
       ms: 1500,
-      description: 'OCR/NER 분석을 진행합니다.',
+      description: 'OCR/NER 분석을 진행합니다 — 사진은 OCR 로, 텍스트는 NER 로.',
     },
     {
       kind: 'set_ocr_status',
@@ -324,6 +324,19 @@ const stepActions: UIAction[][] = [
       field: 'task-registration.job',
       value: CUSTOMER.job,
       description: '직업/소속이 자동 입력됩니다.',
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.productCategory',
+      value: '운전자보험',
+      description:
+        "텍스트 메시지에서 NER 로 보험 종류 '운전자보험' 이 추출되어 채워집니다.",
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.monthlyPremium',
+      value: '월 1만원 내외',
+      description: "월 납입 목표 '월 1만원 내외' 가 NER 로 추출되어 채워집니다.",
     },
   ],
   // 9. 저장 — task chip 부착 + RightRail TodoPanel 항목 추가
@@ -396,6 +409,18 @@ const stepActions: UIAction[][] = [
       kind: 'fill_input',
       field: 'task-registration.job',
       value: CUSTOMER.job,
+      description: '',
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.productCategory',
+      value: '운전자보험',
+      description: '',
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.monthlyPremium',
+      value: '월 1만원 내외',
       description: '',
     },
     {
@@ -604,7 +629,7 @@ const stepDescriptions = [
   '설계사와 설계매니저가 인사 메시지를 주고받습니다 — 이제부터는 모든 업무가 이 채널에서 진행됩니다.',
   '설계사가 종이에 적은 고객 정보(이름·주민번호·주소)를 사진으로 보내고, 이어서 텍스트로 설계 조건을 요청합니다.',
   '설계매니저가 헤더 ✓ 로 다중 선택 모드에 들어가 사진 + 텍스트 두 메시지를 한 건의 할 일로 묶고 하단 "할 일 생성" 버튼을 누르면 모달이 열립니다.',
-  'OCR/NER 분석이 끝나면 고객명·주민번호·휴대폰·주소·직업 5개 필드가 자동으로 채워지고 "OCR 추출 완료" 배지가 표시됩니다.',
+  '사진은 OCR 로 고객 5개 필드, 텍스트는 NER 로 보험 종류·월 납입 2개 필드가 동시에 추출되어 자동 입력됩니다.',
   '저장하면 사진 메시지에 "처리중" 할 일 chip 이 부착되고 우측 RightRail 의 할 일 패널에 항목이 추가됩니다.',
   '할 일을 다시 열어 "고객 등록" 버튼을 누르면 영업 시스템(SFA)에 고객이 등록됩니다.',
   '동의서 미수령 상태에서는 "장기 가입 설계" 가 비활성화됩니다. "동의서 요청"을 누르면 설계사 모바일에 가입설계동의서 비즈폼이 발송되고, 설계사가 작성·서명·제출하면 채팅에 inline 카드가 추가되며 동의서가 등록완료로 바뀝니다.',

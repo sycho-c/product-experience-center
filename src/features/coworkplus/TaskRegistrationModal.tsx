@@ -75,6 +75,9 @@ export function TaskRegistrationModal() {
   const attachmentName = firstImageTalk?.attachments?.find((a) =>
     a.mime?.startsWith('image/')
   )?.name;
+  const textTalks = sourceTalks.filter(
+    (t) => !t.attachments || t.attachments.length === 0
+  );
 
   const v = (k: string) => inputs[`task-registration.${k}`] ?? '';
   const setV = (k: string) => (val: string) =>
@@ -186,6 +189,45 @@ export function TaskRegistrationModal() {
                 </div>
               </div>
             </section>
+
+            {/* 요청 조건 (텍스트 NER) — 텍스트 메시지가 출처에 포함된 경우만 노출 */}
+            {textTalks.length > 0 && (
+              <section className="mt-3 rounded-lg border border-surface-border bg-surface-canvas/50 p-3">
+                <div className="mb-2 flex items-center gap-2">
+                  <h3 className="text-xs font-semibold text-ink-primary">
+                    요청 조건
+                  </h3>
+                  {extracting && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] text-amber-700">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      텍스트 NER 분석 중...
+                    </span>
+                  )}
+                  {completed && (v('productCategory') || v('monthlyPremium')) && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
+                      NER 추출 완료
+                    </span>
+                  )}
+                </div>
+                <p className="mb-2 text-[10px] text-ink-muted">
+                  ※ 텍스트 메시지에서 보험 종류·월 납입 등 요청 조건을 자동 추출합니다.
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Field
+                    label="보험 종류"
+                    value={v('productCategory')}
+                    onChange={setV('productCategory')}
+                    loading={extracting}
+                  />
+                  <Field
+                    label="월 납입 (목표)"
+                    value={v('monthlyPremium')}
+                    onChange={setV('monthlyPremium')}
+                    loading={extracting}
+                  />
+                </div>
+              </section>
+            )}
 
             {/* 고객 상세 내역 */}
             <section
