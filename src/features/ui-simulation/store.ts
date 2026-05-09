@@ -58,6 +58,8 @@ export interface BizFormModalState {
   fields: BizFormFieldSeed[];
 }
 
+export type OcrStatus = 'idle' | 'extracting' | 'completed';
+
 export interface UISimState {
   modals: Record<string, ModalState>;
   inputs: Record<string, string>;
@@ -80,11 +82,14 @@ export interface UISimState {
   mobileNotices: MobileNotice[];
   mobileChatList: MobileChatListEntry[];
   highlight: string | null;
+  /** OCR/NER 진행 상태 — modalId 별. TaskRegistrationModal 등에서 배지/스피너 토글에 사용. */
+  ocrStatusByModal: Record<string, OcrStatus>;
 }
 
 interface UISimActions {
   reset: () => void;
   applySeed: (seed?: UISimSeed) => void;
+  setOcrStatus: (modalId: string, status: OcrStatus) => void;
   setModal: (modalId: string, patch: Partial<ModalState>) => void;
   setInput: (field: string, value: string) => void;
   setCheck: (itemId: string, on: boolean) => void;
@@ -130,6 +135,7 @@ const EMPTY_STATE: UISimState = {
   mobileNotices: [],
   mobileChatList: [],
   highlight: null,
+  ocrStatusByModal: {},
 };
 
 export const useUISimStore = create<UISimState & UISimActions>()(
@@ -147,6 +153,7 @@ export const useUISimStore = create<UISimState & UISimActions>()(
         participants: {},
         mobileNotices: [],
         mobileChatList: [],
+        ocrStatusByModal: {},
       })),
     applySeed: (seed) =>
       set((s) => {
@@ -174,6 +181,11 @@ export const useUISimStore = create<UISimState & UISimActions>()(
         s.mobileNotices = [];
         s.mobileChatList = [];
         s.highlight = null;
+        s.ocrStatusByModal = {};
+      }),
+    setOcrStatus: (modalId, status) =>
+      set((s) => {
+        s.ocrStatusByModal[modalId] = status;
       }),
     setModal: (modalId, patch) =>
       set((s) => {

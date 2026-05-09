@@ -1,4 +1,4 @@
-import type { Talk, TalkActor } from './talk';
+import type { Talk, TalkActor, TalkAttachment } from './talk';
 
 export type DeviceTarget = 'pc' | 'mobile' | 'all';
 
@@ -63,6 +63,8 @@ export type UIAction =
       description: string;
       initialStep?: number;
       initialTab?: string;
+      /** 모달별 추가 컨텍스트 (예: task-registration 의 sourceMessageId, mode). 모달 컴포넌트가 store.modals[modalId].data 로 읽음. */
+      context?: Record<string, unknown>;
     }
   | { kind: 'close_modal'; modalId: string; description: string }
   | {
@@ -123,6 +125,7 @@ export type UIAction =
       messageId?: string;
       from: TalkActor;
       content: string;
+      attachments?: TalkAttachment[];
       deviceTarget?: DeviceTarget;
       description: string;
     }
@@ -266,6 +269,13 @@ export type UIAction =
   | {
       kind: 'switch_mobile_viewer';
       participantId: string;
+      description: string;
+    }
+  // OCR — 메시지/이미지에서 정보 추출 시 모달의 진행 상태 토글
+  | {
+      kind: 'set_ocr_status';
+      modalId: string;
+      status: 'idle' | 'extracting' | 'completed';
       description: string;
     }
   // 보조

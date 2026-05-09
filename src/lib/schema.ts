@@ -158,6 +158,7 @@ export const UIActionSchema = z.discriminatedUnion('kind', [
     description: z.string(),
     initialStep: z.number().int().optional(),
     initialTab: z.string().optional(),
+    context: z.record(z.string(), z.unknown()).optional(),
   }),
   z.object({
     kind: z.literal('close_modal'),
@@ -230,6 +231,7 @@ export const UIActionSchema = z.discriminatedUnion('kind', [
     messageId: z.string().optional(),
     from: TalkActorSchema,
     content: z.string(),
+    attachments: z.array(TalkAttachmentSchema).optional(),
     deviceTarget: DeviceTargetSchema.optional(),
     description: z.string(),
   }),
@@ -376,6 +378,12 @@ export const UIActionSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('switch_mobile_viewer'),
     participantId: z.string(),
+    description: z.string(),
+  }),
+  z.object({
+    kind: z.literal('set_ocr_status'),
+    modalId: z.string(),
+    status: z.enum(['idle', 'extracting', 'completed']),
     description: z.string(),
   }),
   z.object({

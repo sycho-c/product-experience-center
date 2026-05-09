@@ -27,6 +27,7 @@ export function applyUIAction(action: UIAction): void {
         open: true,
         step: action.initialStep ?? 1,
         tab: action.initialTab,
+        data: action.context,
       });
       break;
     case 'close_modal':
@@ -102,6 +103,9 @@ export function applyUIAction(action: UIAction): void {
               ? 'pc'
               : 'all',
         content: action.content,
+        attachments: action.attachments
+          ? action.attachments.map((a) => ({ ...a }))
+          : undefined,
         offsetMs: 0,
       };
       s.appendTalk(action.roomId, talk);
@@ -325,6 +329,9 @@ export function applyUIAction(action: UIAction): void {
     }
     case 'switch_mobile_viewer':
       s.setMobileViewer(action.participantId);
+      break;
+    case 'set_ocr_status':
+      s.setOcrStatus(action.modalId, action.status);
       break;
 
     default: {
