@@ -22,14 +22,15 @@ const CONSENT_BIZFORM_ID = 'hi-consent-bf';
 const CONSENT_BIZFORM_MSG = 'hi-consent-bf-msg';
 
 // 손글씨 메모 — 카드/모달의 우측 미리보기용 SVG data URL
-const handwrittenSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="420" height="280" viewBox="0 0 420 280">
-  <rect width="420" height="280" fill="#faf6e3" stroke="#d6cfa8" stroke-width="3"/>
+const handwrittenSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="420" height="340" viewBox="0 0 420 340">
+  <rect width="420" height="340" fill="#faf6e3" stroke="#d6cfa8" stroke-width="3"/>
   <g font-family="'Nanum Pen Script','Cursive',serif" font-size="24" fill="#1f1a13">
-    <text x="32" y="74">이름 : 박정균</text>
-    <text x="32" y="134">주민번호 : 771030-1234567</text>
-    <text x="32" y="194">주소 : 서울시 강동구</text>
-    <text x="100" y="232">명일동 LG아파트</text>
-    <text x="100" y="266">101동 1502호</text>
+    <text x="32" y="60">이름 : 박정균</text>
+    <text x="32" y="110">주민번호 : 771030-1234567</text>
+    <text x="32" y="160">연락처 : 010-3456-7890</text>
+    <text x="32" y="210">주소 : 서울시 강동구</text>
+    <text x="100" y="246">명일동 LG아파트</text>
+    <text x="100" y="282">101동 1502호</text>
   </g>
 </svg>`;
 const handwrittenUrl = `data:image/svg+xml;utf8,${encodeURIComponent(handwrittenSvg)}`;
@@ -276,6 +277,12 @@ const stepActions: UIAction[][] = [
     },
     {
       kind: 'fill_input',
+      field: 'task-registration.phone',
+      value: CUSTOMER.phone,
+      description: '휴대폰번호가 채워집니다.',
+    },
+    {
+      kind: 'fill_input',
       field: 'task-registration.address',
       value: CUSTOMER.address,
       description: '주소가 채워집니다.',
@@ -302,6 +309,12 @@ const stepActions: UIAction[][] = [
     {
       kind: 'fill_input',
       field: 'task-registration.ssn',
+      value: '',
+      description: '',
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.phone',
       value: '',
       description: '',
     },
