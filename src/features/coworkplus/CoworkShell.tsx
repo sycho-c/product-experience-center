@@ -5,6 +5,7 @@ import { TalkRoomList } from './TalkRoomList';
 import { TalkRoomView } from './TalkRoomView';
 import { RightRail } from './RightRail';
 import { CreateRoomModal } from './CreateRoomModal';
+import { TaskRegistrationModal } from './TaskRegistrationModal';
 import { ToastViewport } from './ToastViewport';
 import { useUISimStore } from '@/features/ui-simulation/store';
 import { progressOrDo } from '@/lib/use-scenario-match';
@@ -69,6 +70,7 @@ export function CoworkShell({
 
       {/* Modal & Toast 뷰포트는 Cowork+ 셸 안에서 absolute */}
       <CreateRoomModal />
+      <TaskRegistrationModal />
       <ToastViewport />
     </div>
   );
