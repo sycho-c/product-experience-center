@@ -6,28 +6,59 @@
 
 ## 1. 시나리오 모듈 구조
 
-시나리오는 `src/data/scenarios/` 아래에 두 가지 형태로 작성할 수 있다.
+시나리오는 `src/data/scenarios/` 아래에 **두 파일 한 쌍**으로 작성한다.
 
-| 형태 | 사용 시점 | 예 |
-|------|----------|----|
-| `*.json` | 정적 데이터만으로 충분할 때 | `basic-room-creation.json` |
-| `*.ts` (default export Scenario) | 70명 자동 생성 등 코드 도움이 필요할 때 | `woori-credit.ts` |
+| 파일 | 역할 | 로드 시점 |
+|------|------|----------|
+| `<id>.meta.ts` | `ScenarioMeta` (id/title/summary/category/customer/difficulty/durationMinutes/devices) 만 named export | `_index.ts` 가 즉시 import — 카드 목록 표시용 |
+| `<id>.ts` | `Scenario` 본체 (`...meta` + steps/seed/extends/beforeSteps/metrics/goals) default export | `loadScenario(id)` 가 호출될 때 lazy import |
 
-`src/data/scenarios/_index.ts` 의 `scenarioRegistry` 에 entry 를 추가하면 카드 목록·라우팅에 자동 노출된다. `loadJson(() => import('./id'))` 패턴은 .ts 와 .json 모두 작동한다 (default export 사용).
+이 분리는 (a) `_index.ts` 에서 메타 중복 제거, (b) 시나리오 본체의 lazy chunk 분리 유지, 두 가지를 동시에 만족시킨다. `Scenario` 본체가 `...meta` 로 합성되므로 메타 필드는 `<id>.meta.ts` 가 **단일 source**.
 
+### `<id>.meta.ts` 표준 형태
 ```ts
-{
+import type { ScenarioMeta } from '@/types/scenario';
+
+export const meta: ScenarioMeta = {
   id: 'my-scenario',
   title: '새 시나리오',
   summary: '한 줄 설명',
-  category: 'customer-case',
-  difficulty: 'medium',
+  category: 'customer-case',           // 'customer-case' | 'feature' | 'future-concept' | 'industry'
+  customer: { id: 'acme', name: 'ACME' }, // customer-case 일 때만
+  difficulty: 'medium',                // 'easy' | 'medium' | 'hard'
   durationMinutes: 10,
   devices: ['pc', 'mobile'],
-  stepCount: 8,
-  load: () => loadJson(() => import('./my-scenario')),
-}
+};
 ```
+
+### `<id>.ts` 표준 형태
+```ts
+import type { Scenario } from '@/types/scenario';
+import { meta } from './my-scenario.meta';
+
+const scenario: Scenario = {
+  ...meta,
+  goals: ['...'],
+  steps: [...],
+  beforeSteps: [...],   // 비교 데모가 필요한 경우
+  metrics: [...],       // ImpactMetrics 표시용
+  // seed, extends 등 필요 시
+};
+
+export default scenario;
+```
+
+### `_index.ts` 등록
+```ts
+import { meta as myMeta } from './my-scenario.meta';
+
+export const scenarioRegistry: ScenarioRegistryEntry[] = [
+  // ... 기존 entries
+  { ...myMeta, load: lazy(() => import('./my-scenario')) },
+];
+```
+
+`lazy` 헬퍼는 `_index.ts` 안에 정의되어 있다. **추가 시 한 줄, 수정 시 `<id>.meta.ts` 만 손대면 된다.**
 
 `Scenario` 객체의 핵심 필드:
 

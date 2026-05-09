@@ -23,7 +23,6 @@ export async function listScenarios(): Promise<ScenarioSummary[]> {
     difficulty: s.difficulty,
     durationMinutes: s.durationMinutes,
     devices: s.devices,
-    stepCount: s.stepCount,
   }));
 }
 

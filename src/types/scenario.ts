@@ -37,7 +37,7 @@ export interface ScenarioCustomer {
   logoUrl?: string;
 }
 
-export interface Scenario {
+export interface ScenarioMeta {
   id: string;
   title: string;
   summary?: string;
@@ -46,6 +46,9 @@ export interface Scenario {
   difficulty: ScenarioDifficulty;
   durationMinutes: number;
   devices: DeviceKind[];
+}
+
+export interface Scenario extends ScenarioMeta {
   /**
    * 부모 시나리오 id. 지정 시 부모의 모든 step.actions 를 적용한 최종 상태를
    * 시작 시점 seed 로 사용한다. 자식의 자체 seed 는 그 위에 덮어쓴다.
@@ -59,14 +62,4 @@ export interface Scenario {
   goals?: string[];
 }
 
-export interface ScenarioSummary {
-  id: string;
-  title: string;
-  summary?: string;
-  category: ScenarioCategory;
-  customer?: ScenarioCustomer;
-  difficulty: ScenarioDifficulty;
-  durationMinutes: number;
-  devices: DeviceKind[];
-  stepCount: number;
-}
+export type ScenarioSummary = ScenarioMeta;
