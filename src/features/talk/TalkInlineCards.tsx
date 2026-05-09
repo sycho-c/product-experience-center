@@ -5,7 +5,6 @@ import {
   FileText,
   Link2,
   Mail,
-  Paperclip,
   UserPlus2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -151,24 +150,14 @@ function FileCard({ talk }: { talk: Talk }) {
         href={file.url}
         target="_blank"
         rel="noreferrer"
-        className="block w-[260px] overflow-hidden rounded-lg border border-surface-border bg-surface-card shadow-soft hover:border-brand-primary"
+        title={file.name}
+        className="block w-[180px] overflow-hidden rounded-lg border border-surface-border bg-surface-canvas shadow-soft hover:border-brand-primary"
       >
         <img
           src={file.url}
           alt={file.name}
-          className="block max-h-[200px] w-full object-contain bg-surface-canvas"
+          className="block max-h-[120px] w-full object-cover"
         />
-        <div className="flex items-center gap-2 px-2.5 py-1.5">
-          <Paperclip className="h-3 w-3 text-brand-primary" />
-          <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-ink-primary">
-            {file.name}
-          </span>
-          {typeof file.size === 'number' && (
-            <span className="text-[10px] text-ink-muted">
-              {Math.round(file.size / 1024)} KB
-            </span>
-          )}
-        </div>
       </a>
     );
   }
