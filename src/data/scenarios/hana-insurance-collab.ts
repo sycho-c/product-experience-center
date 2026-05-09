@@ -223,25 +223,49 @@ const stepActions: UIAction[][] = [
       description: '이어서 텍스트 메시지로 설계 요청을 보냅니다.',
     },
   ],
-  // 7. ⋮ 메뉴 → 할 일 등록 모달 오픈 (OCR 추출 중)
+  // 7. 다중 메시지 선택 → 두 메시지 묶어 할 일 생성 → 모달 오픈 (OCR 추출 중)
   [
     {
-      kind: 'highlight',
-      selector: `message-${IMG_NOTE_MSG}`,
+      kind: 'enter_multi_select_mode',
+      roomId: ROOM_ID,
       description:
-        '설계매니저가 사진 메시지의 ⋮ 메뉴에서 "할 일 생성"을 선택합니다.',
+        '설계매니저가 헤더의 ✓ 아이콘을 눌러 다중 메시지 선택 모드에 진입합니다.',
+    },
+    {
+      kind: 'toggle_message_select',
+      messageId: IMG_NOTE_MSG,
+      on: true,
+      description: '손글씨 사진 메시지를 선택합니다.',
+    },
+    {
+      kind: 'toggle_message_select',
+      messageId: TEXT_REQUEST_MSG,
+      on: true,
+      description:
+        '이어서 텍스트 설계 요청 메시지도 함께 선택합니다 — 두 메시지를 한 건의 할 일로 묶습니다.',
+    },
+    {
+      kind: 'highlight',
+      selector: 'multi-select-create-task',
+      description:
+        '하단 "2개 메시지 선택됨 — 할 일 생성" 버튼을 안내합니다.',
     },
     {
       kind: 'open_modal',
       modalId: 'task-registration',
       context: {
         roomId: ROOM_ID,
+        sourceMessageIds: [IMG_NOTE_MSG, TEXT_REQUEST_MSG],
         sourceMessageId: IMG_NOTE_MSG,
         mode: 'create',
         designer: DESIGNER_NAME,
       },
       description:
-        "'할 일 등록' 모달이 열립니다. 우측 패널에 손글씨 사진이 표시됩니다.",
+        "'할 일 등록' 모달이 열립니다. 출처 메시지에 사진·텍스트가 모두 포함되고 우측 패널에 손글씨 사진이 표시됩니다.",
+    },
+    {
+      kind: 'exit_multi_select_mode',
+      description: '다중 선택 모드를 종료합니다.',
     },
     {
       kind: 'fill_input',
@@ -472,7 +496,7 @@ const stepTitles = [
   '설계사 모바일 입장',
   '인사 교환',
   '손글씨 사진 + 설계 요청',
-  '⋮ 할 일 생성 — 모달 오픈',
+  '다중 메시지 선택 → 할 일 생성 모달 오픈',
   'OCR/NER 자동 추출',
   '할 일 저장 — chip 부착',
   '고객 등록',
@@ -487,7 +511,7 @@ const stepDescriptions = [
   '설계사가 모바일에서 카카오 알림톡 초대를 수락해 공식 협업 채널에 입장합니다.',
   '설계사와 설계매니저가 인사 메시지를 주고받습니다 — 이제부터는 모든 업무가 이 채널에서 진행됩니다.',
   '설계사가 종이에 적은 고객 정보(이름·주민번호·주소)를 사진으로 보내고, 이어서 텍스트로 설계 조건을 요청합니다.',
-  '설계매니저가 사진 메시지의 ⋮ 메뉴에서 "할 일 생성"을 선택하면 우측에 손글씨 미리보기가 함께 보이는 할 일 등록 모달이 열립니다.',
+  '설계매니저가 헤더 ✓ 로 다중 선택 모드에 들어가 사진 + 텍스트 두 메시지를 한 건의 할 일로 묶고 하단 "할 일 생성" 버튼을 누르면 모달이 열립니다.',
   'OCR/NER 분석이 끝나면 고객명·주민번호·휴대폰·주소·직업 5개 필드가 자동으로 채워지고 "OCR 추출 완료" 배지가 표시됩니다.',
   '저장하면 사진 메시지에 "처리중" 할 일 chip 이 부착되고 우측 RightRail 의 할 일 패널에 항목이 추가됩니다.',
   '할 일을 다시 열어 "고객 등록" 버튼을 누르면 영업 시스템(SFA)에 고객이 등록됩니다.',

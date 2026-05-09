@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  CheckSquare,
   ChevronRight,
   Info,
   Lock,
   LogOut,
   Megaphone,
+  Square,
   UserPlus2,
   Users,
+  X,
 } from 'lucide-react';
 import { useTalkStore } from '@/features/talk/store';
 import { useUISimStore } from '@/features/ui-simulation/store';
@@ -67,11 +70,34 @@ export function TalkRoomView({
   const roomTalks = useUISimStore((s) =>
     s.currentRoomId ? (s.roomTalks[s.currentRoomId] ?? EMPTY_TALKS) : EMPTY_TALKS
   );
+  const multiSelect = useUISimStore((s) => s.multiSelect);
+  const enterMultiSelect = useUISimStore((s) => s.enterMultiSelect);
+  const exitMultiSelect = useUISimStore((s) => s.exitMultiSelect);
+  const toggleMessageSelect = useUISimStore((s) => s.toggleMessageSelect);
+  const setModal = useUISimStore((s) => s.setModal);
+  const isMultiActive =
+    !!multiSelect && multiSelect.roomId === currentRoomId;
 
   // ui-simulation 의 방이 있으면 그걸 우선, 아니면 legacy timeline.
   const timeline = currentRoomId ? roomTalks : legacyTimeline;
   const roomTitle = room?.title ?? roomTitleProp ?? '승열P';
   const participantCount = room?.participantCount ?? participantCountProp ?? 1;
+
+  const onCreateTaskFromSelected = () => {
+    if (!multiSelect || multiSelect.selectedIds.length === 0) return;
+    progressOrDo(() => {
+      setModal('task-registration', {
+        open: true,
+        step: 1,
+        data: {
+          roomId: multiSelect.roomId,
+          sourceMessageIds: [...multiSelect.selectedIds],
+          sourceMessageId: multiSelect.selectedIds[0],
+          mode: 'create',
+        },
+      });
+    });
+  };
 
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -108,6 +134,26 @@ export function TalkRoomView({
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-1 text-ink-muted">
+          <button
+            type="button"
+            aria-label={isMultiActive ? '다중 선택 종료' : '다중 메시지 선택'}
+            aria-pressed={isMultiActive}
+            onClick={() =>
+              progressOrDo(() => {
+                if (!currentRoomId) return;
+                if (isMultiActive) exitMultiSelect();
+                else enterMultiSelect(currentRoomId);
+              })
+            }
+            className={cn(
+              'grid h-7 w-7 place-items-center rounded transition-colors',
+              isMultiActive
+                ? 'bg-brand-primarySoft text-brand-primary'
+                : 'hover:bg-surface-subtle'
+            )}
+          >
+            <CheckSquare className="h-4 w-4" />
+          </button>
           <HeaderIconButton
             icon={<MaskedCheck />}
             label="확인"
@@ -169,13 +215,82 @@ export function TalkRoomView({
       >
         <DateDivider label={formatDateLabel()} />
         <ul className="mt-4 space-y-3">
-          {timeline.map((talk) => (
-            <li key={talk.id}>
-              <TalkBubble talk={talk} skin={skin} />
-            </li>
-          ))}
+          {timeline.map((talk) => {
+            const selectable =
+              isMultiActive &&
+              talk.type !== 'system' &&
+              talk.from.role !== 'system';
+            const selected =
+              isMultiActive &&
+              !!multiSelect?.selectedIds.includes(talk.id);
+            return (
+              <li key={talk.id}>
+                <div className="flex items-start gap-2">
+                  {isMultiActive && (
+                    <button
+                      type="button"
+                      disabled={!selectable}
+                      aria-label={selected ? '선택 해제' : '선택'}
+                      aria-pressed={selected}
+                      onClick={() =>
+                        selectable &&
+                        progressOrDo(() => toggleMessageSelect(talk.id))
+                      }
+                      className={cn(
+                        'mt-1.5 grid h-5 w-5 shrink-0 place-items-center rounded border transition-colors',
+                        !selectable && 'opacity-30 cursor-not-allowed border-surface-border',
+                        selectable &&
+                          (selected
+                            ? 'border-brand-primary bg-brand-primary text-white'
+                            : 'border-surface-border bg-white hover:border-brand-primary')
+                      )}
+                    >
+                      {selected ? (
+                        <CheckSquare className="h-3 w-3" />
+                      ) : (
+                        <Square className="h-3 w-3" />
+                      )}
+                    </button>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <TalkBubble talk={talk} skin={skin} />
+                  </div>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </div>
+
+      {isMultiActive && (
+        <div className="flex shrink-0 items-center justify-between border-t border-surface-border bg-brand-primarySoft/40 px-4 py-2">
+          <div className="flex items-center gap-2 text-xs text-ink-primary">
+            <span className="inline-flex h-5 min-w-[1.5rem] items-center justify-center rounded-full bg-brand-primary px-1.5 text-[11px] font-semibold text-white">
+              {multiSelect?.selectedIds.length ?? 0}
+            </span>
+            개 메시지 선택됨
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => progressOrDo(() => exitMultiSelect())}
+              className="inline-flex items-center gap-1 rounded-md border border-surface-border bg-white px-2.5 py-1 text-[11px] text-ink-secondary hover:bg-surface-subtle"
+            >
+              <X className="h-3 w-3" />
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={onCreateTaskFromSelected}
+              disabled={(multiSelect?.selectedIds.length ?? 0) === 0}
+              className="inline-flex items-center gap-1 rounded-md bg-brand-primary px-3 py-1 text-[11px] font-medium text-white hover:bg-brand-primaryHover disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <CheckSquare className="h-3 w-3" />
+              할 일 생성
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Input */}
       <TalkInput />

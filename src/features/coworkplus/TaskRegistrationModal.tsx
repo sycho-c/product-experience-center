@@ -20,6 +20,8 @@ const TITLE_CHIPS = [
 interface TaskRegistrationContext {
   roomId?: string;
   sourceMessageId?: string;
+  /** 다중 선택 모드에서 만든 경우 — 여러 메시지를 출처로 갖는다. */
+  sourceMessageIds?: string[];
   mode?: 'create' | 'edit';
   designer?: string;
 }
@@ -51,12 +53,28 @@ export function TaskRegistrationModal() {
   const ctx = (modal.data ?? {}) as TaskRegistrationContext;
   const mode = ctx.mode ?? 'create';
   const designer = ctx.designer ?? '영업가족-김철수';
-  const sourceTalk =
-    ctx.roomId && ctx.sourceMessageId
-      ? (roomTalks[ctx.roomId] ?? []).find((t) => t.id === ctx.sourceMessageId)
-      : undefined;
-  const attachmentUrl = sourceTalk?.attachments?.[0]?.url;
-  const attachmentName = sourceTalk?.attachments?.[0]?.name;
+
+  // 단일/다중 선택 모두 지원 — 첫 번째로 나오는 이미지 첨부를 우측 미리보기로,
+  // 텍스트 메시지는 하단의 "출처 메시지" 리스트에 표시.
+  const sourceMessageIds: string[] = ctx.sourceMessageIds?.length
+    ? ctx.sourceMessageIds
+    : ctx.sourceMessageId
+      ? [ctx.sourceMessageId]
+      : [];
+  const sourceTalks = ctx.roomId
+    ? sourceMessageIds
+        .map((id) => (roomTalks[ctx.roomId!] ?? []).find((t) => t.id === id))
+        .filter((t): t is NonNullable<typeof t> => !!t)
+    : [];
+  const firstImageTalk = sourceTalks.find((t) =>
+    t.attachments?.some((a) => a.mime?.startsWith('image/'))
+  );
+  const attachmentUrl = firstImageTalk?.attachments?.find((a) =>
+    a.mime?.startsWith('image/')
+  )?.url;
+  const attachmentName = firstImageTalk?.attachments?.find((a) =>
+    a.mime?.startsWith('image/')
+  )?.name;
 
   const v = (k: string) => inputs[`task-registration.${k}`] ?? '';
   const setV = (k: string) => (val: string) =>
@@ -104,6 +122,29 @@ export function TaskRegistrationModal() {
           </header>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 scrollbar-thin">
+            {sourceTalks.length > 1 && (
+              <section className="mb-3 rounded-lg border border-brand-primary/30 bg-brand-primarySoft/30 p-3">
+                <h3 className="mb-1.5 text-xs font-semibold text-ink-primary">
+                  출처 메시지 ({sourceTalks.length})
+                </h3>
+                <ul className="space-y-1">
+                  {sourceTalks.map((t) => (
+                    <li
+                      key={t.id}
+                      className="flex items-start gap-2 text-[11px]"
+                    >
+                      <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-medium text-brand-primary border border-brand-primary/30">
+                        {t.attachments?.length ? '이미지' : '텍스트'}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-ink-secondary">
+                        {t.content}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
             {/* 기본 정보 */}
             <section className="rounded-lg border border-surface-border bg-surface-canvas/50 p-3">
               <h3 className="mb-2 text-xs font-semibold text-ink-primary">

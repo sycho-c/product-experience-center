@@ -387,6 +387,21 @@ export const UIActionSchema = z.discriminatedUnion('kind', [
     description: z.string(),
   }),
   z.object({
+    kind: z.literal('enter_multi_select_mode'),
+    roomId: z.string(),
+    description: z.string(),
+  }),
+  z.object({
+    kind: z.literal('exit_multi_select_mode'),
+    description: z.string(),
+  }),
+  z.object({
+    kind: z.literal('toggle_message_select'),
+    messageId: z.string(),
+    on: z.boolean(),
+    description: z.string(),
+  }),
+  z.object({
     kind: z.literal('highlight'),
     selector: z.string().nullable(),
     description: z.string(),

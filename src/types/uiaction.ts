@@ -278,6 +278,22 @@ export type UIAction =
       status: 'idle' | 'extracting' | 'completed';
       description: string;
     }
+  // 다중 메시지 선택 — 헤더 ✓ 진입, 메시지 체크박스, 하단 sticky bar → 일괄 할 일 생성
+  | {
+      kind: 'enter_multi_select_mode';
+      roomId: string;
+      description: string;
+    }
+  | {
+      kind: 'exit_multi_select_mode';
+      description: string;
+    }
+  | {
+      kind: 'toggle_message_select';
+      messageId: string;
+      on: boolean;
+      description: string;
+    }
   // 보조
   | { kind: 'highlight'; selector: string | null; description: string }
   | { kind: 'wait'; ms: number; description: string };

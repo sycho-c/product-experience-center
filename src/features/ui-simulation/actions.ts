@@ -333,6 +333,15 @@ export function applyUIAction(action: UIAction): void {
     case 'set_ocr_status':
       s.setOcrStatus(action.modalId, action.status);
       break;
+    case 'enter_multi_select_mode':
+      s.enterMultiSelect(action.roomId);
+      break;
+    case 'exit_multi_select_mode':
+      s.exitMultiSelect();
+      break;
+    case 'toggle_message_select':
+      s.toggleMessageSelect(action.messageId, action.on);
+      break;
 
     default: {
       const _exhaustive: never = action;

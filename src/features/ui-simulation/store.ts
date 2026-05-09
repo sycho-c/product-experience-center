@@ -60,6 +60,12 @@ export interface BizFormModalState {
 
 export type OcrStatus = 'idle' | 'extracting' | 'completed';
 
+/** 다중 메시지 선택 모드 — 헤더 ✓ 클릭으로 진입, 메시지를 체크박스로 다중 선택. */
+export interface MultiSelectState {
+  roomId: string;
+  selectedIds: string[];
+}
+
 export interface UISimState {
   modals: Record<string, ModalState>;
   inputs: Record<string, string>;
@@ -84,6 +90,8 @@ export interface UISimState {
   highlight: string | null;
   /** OCR/NER 진행 상태 — modalId 별. TaskRegistrationModal 등에서 배지/스피너 토글에 사용. */
   ocrStatusByModal: Record<string, OcrStatus>;
+  /** 다중 메시지 선택 모드 — 활성 시 메시지 체크박스 + 하단 sticky bar. */
+  multiSelect: MultiSelectState | null;
 }
 
 interface UISimActions {
@@ -116,6 +124,9 @@ interface UISimActions {
   pushMobileChat: (entry: MobileChatListEntry) => void;
   markMobileChatRead: (roomId: string) => void;
   setHighlight: (selector: string | null) => void;
+  enterMultiSelect: (roomId: string) => void;
+  exitMultiSelect: () => void;
+  toggleMessageSelect: (messageId: string, on?: boolean) => void;
 }
 
 const EMPTY_STATE: UISimState = {
@@ -136,6 +147,7 @@ const EMPTY_STATE: UISimState = {
   mobileChatList: [],
   highlight: null,
   ocrStatusByModal: {},
+  multiSelect: null,
 };
 
 export const useUISimStore = create<UISimState & UISimActions>()(
@@ -154,6 +166,7 @@ export const useUISimStore = create<UISimState & UISimActions>()(
         mobileNotices: [],
         mobileChatList: [],
         ocrStatusByModal: {},
+        multiSelect: null,
       })),
     applySeed: (seed) =>
       set((s) => {
@@ -182,6 +195,7 @@ export const useUISimStore = create<UISimState & UISimActions>()(
         s.mobileChatList = [];
         s.highlight = null;
         s.ocrStatusByModal = {};
+        s.multiSelect = null;
       }),
     setOcrStatus: (modalId, status) =>
       set((s) => {
@@ -310,6 +324,27 @@ export const useUISimStore = create<UISimState & UISimActions>()(
     setHighlight: (selector) =>
       set((s) => {
         s.highlight = selector;
+      }),
+    enterMultiSelect: (roomId) =>
+      set((s) => {
+        s.multiSelect = { roomId, selectedIds: [] };
+      }),
+    exitMultiSelect: () =>
+      set((s) => {
+        s.multiSelect = null;
+      }),
+    toggleMessageSelect: (messageId, on) =>
+      set((s) => {
+        if (!s.multiSelect) return;
+        const has = s.multiSelect.selectedIds.includes(messageId);
+        const want = on ?? !has;
+        if (want && !has) {
+          s.multiSelect.selectedIds.push(messageId);
+        } else if (!want && has) {
+          s.multiSelect.selectedIds = s.multiSelect.selectedIds.filter(
+            (id) => id !== messageId
+          );
+        }
       }),
   }))
 );
