@@ -36,7 +36,7 @@ export function CoworkShell({
     !hideRightRail && currentRoomId && hasRooms && rightRailOpen;
 
   return (
-    <div className="relative flex h-full min-h-[600px] w-full overflow-hidden rounded-lg bg-surface-canvas">
+    <div className="relative flex h-full min-h-0 w-full overflow-hidden rounded-lg bg-surface-canvas">
       <SidebarNav activeId="talk" />
 
       {/* Center column: header + list + view */}
