@@ -225,7 +225,100 @@ const stepActions: UIAction[][] = [
       description: '이어서 텍스트 메시지로 설계 요청을 보냅니다.',
     },
   ],
-  // 7. 다중 메시지 선택 → 두 메시지 묶어 할 일 생성 → 모달 오픈 (OCR 추출 중)
+  // 7. (단일 흐름 데모) 사진 메시지 ⋮ 한 건만으로 할 일 등록 — 모달 오픈 후 짧게 OCR 보여주고 닫기
+  [
+    {
+      kind: 'highlight',
+      selector: `message-${IMG_NOTE_MSG}`,
+      description:
+        "기존 단일 메시지 흐름 — 손글씨 사진 메시지의 ⋮ 메뉴에서 '할 일 생성' 으로 한 건의 메시지만으로도 등록할 수 있습니다.",
+    },
+    {
+      kind: 'open_modal',
+      modalId: 'task-registration',
+      context: {
+        roomId: ROOM_ID,
+        sourceMessageId: IMG_NOTE_MSG,
+        mode: 'create',
+        designer: DESIGNER_NAME,
+      },
+      description:
+        "단일 출처(사진)로 모달이 열립니다 — '요청 조건' 영역(NER) 은 텍스트 출처가 없으므로 보이지 않습니다.",
+    },
+    {
+      kind: 'set_ocr_status',
+      modalId: 'task-registration',
+      status: 'extracting',
+      description: '사진 OCR 분석을 시작합니다.',
+    },
+    {
+      kind: 'wait',
+      ms: 1000,
+      description: 'OCR 처리 대기.',
+    },
+    {
+      kind: 'set_ocr_status',
+      modalId: 'task-registration',
+      status: 'completed',
+      description: 'OCR 추출 완료 — 고객 5개 필드만 채워집니다 (NER 없음).',
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.customerName',
+      value: CUSTOMER.name,
+      description: `OCR 로 고객명 '${CUSTOMER.name}' 이 채워집니다.`,
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.ssn',
+      value: CUSTOMER.ssn,
+      description: '주민등록번호가 채워집니다.',
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.address',
+      value: CUSTOMER.address,
+      description: '주소가 채워집니다.',
+    },
+    {
+      kind: 'show_toast',
+      message:
+        '단일 메시지 흐름 데모 완료 — 다음 단계에서 텍스트도 함께 묶는 다중 선택 흐름을 시연합니다.',
+      tone: 'info',
+      description:
+        '단일 흐름은 데모로 보여주고 저장 없이 모달을 닫습니다 — 본격 task 등록은 다음 다중 선택 흐름에서 진행합니다.',
+    },
+    {
+      kind: 'close_modal',
+      modalId: 'task-registration',
+      description: '모달을 닫습니다 (저장하지 않음).',
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.customerName',
+      value: '',
+      description: '데모 입력값을 비워둡니다 — 다음 다중 흐름에서 다시 채워집니다.',
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.ssn',
+      value: '',
+      description: '',
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.address',
+      value: '',
+      description: '',
+    },
+    {
+      kind: 'set_ocr_status',
+      modalId: 'task-registration',
+      status: 'idle',
+      description: 'OCR 상태를 초기화합니다.',
+    },
+  ],
+  // 8. 다중 메시지 선택 → 두 메시지 묶어 할 일 생성 → 모달 오픈 (OCR 추출 중)
   [
     {
       kind: 'enter_multi_select_mode',
@@ -612,6 +705,7 @@ const stepTitles = [
   '설계사 모바일 입장',
   '인사 교환',
   '손글씨 사진 + 설계 요청',
+  '단일 메시지 ⋮ → 할 일 등록 (데모)',
   '다중 메시지 선택 → 할 일 생성 모달 오픈',
   'OCR/NER 자동 추출',
   '할 일 저장 — chip 부착',
@@ -628,7 +722,8 @@ const stepDescriptions = [
   '설계사가 모바일에서 카카오 알림톡 초대를 수락해 공식 협업 채널에 입장합니다.',
   '설계사와 설계매니저가 인사 메시지를 주고받습니다 — 이제부터는 모든 업무가 이 채널에서 진행됩니다.',
   '설계사가 종이에 적은 고객 정보(이름·주민번호·주소)를 사진으로 보내고, 이어서 텍스트로 설계 조건을 요청합니다.',
-  '설계매니저가 헤더 ✓ 로 다중 선택 모드에 들어가 사진 + 텍스트 두 메시지를 한 건의 할 일로 묶고 하단 "할 일 생성" 버튼을 누르면 모달이 열립니다.',
+  '기존 단일 메시지 흐름 — 손글씨 사진 메시지의 ⋮ 메뉴에서 "할 일 생성" 으로 한 건의 메시지만으로도 등록할 수 있다는 것을 짧게 시연합니다 (NER 영역은 텍스트 출처가 없어 비표시). 데모 후 저장 없이 닫고 다음 다중 흐름으로 진행합니다.',
+  '설계매니저가 헤더 ✓ 로 다중 선택 모드에 들어가 사진 + 텍스트 두 메시지를 한 건의 할 일로 묶고 하단 "할 일 생성" 버튼을 누르면 모달이 열립니다 — 본 시연의 메인 흐름입니다.',
   '사진은 OCR 로 고객 5개 필드, 텍스트는 NER 로 보험 종류·월 납입 2개 필드가 동시에 추출되어 자동 입력됩니다.',
   '저장하면 사진 메시지에 "처리중" 할 일 chip 이 부착되고 우측 RightRail 의 할 일 패널에 항목이 추가됩니다.',
   '할 일을 다시 열어 "고객 등록" 버튼을 누르면 영업 시스템(SFA)에 고객이 등록됩니다.',
