@@ -8,6 +8,7 @@ import {
   Smartphone,
   Users,
 } from 'lucide-react';
+import { FileExtBadge } from '@/features/talk/FileExtBadge';
 import { useTalkStore } from '@/features/talk/store';
 import { useUISimStore } from '@/features/ui-simulation/store';
 import { MobileMessageInput } from '@/features/coworkplus/MessageInput';
@@ -17,7 +18,7 @@ import { BizFormModal } from '@/features/coworkplus/BizFormModal';
 import { MockModal } from '@/components/MockModal';
 import { formatClock } from '@/lib/time';
 import { cn } from '@/lib/utils';
-import type { Talk } from '@/types/talk';
+import type { Talk, TalkAttachment } from '@/types/talk';
 import type { ParticipantSeed } from '@/types/uiaction';
 
 const EMPTY_TALKS: Talk[] = [];
@@ -291,9 +292,11 @@ function ChatRoomScreen({
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="flex min-w-0 flex-1 flex-col items-center gap-0.5 px-1">
-          <span className="flex items-center gap-1 text-sm font-semibold">
-            <span className="truncate">{roomTitle}</span>
-            <span className="text-[10px] text-ink-muted font-normal">
+          <span className="flex max-w-full items-center gap-1 text-sm font-semibold">
+            <span className="min-w-0 flex-1 truncate" title={roomTitle}>
+              {roomTitle}
+            </span>
+            <span className="shrink-0 text-[10px] text-ink-muted font-normal">
               ({participantCount})
             </span>
           </span>
@@ -471,6 +474,9 @@ function MobileBubble({
           </span>
         )}
         {bubble}
+        {!showPlaceholder && talk.attachments?.map((att, i) => (
+          <MobileAttachmentCard key={`${talk.id}-att-${i}`} att={att} isMe={isMe} />
+        ))}
         {!showPlaceholder && (
           <div className="text-[10px] text-ink-muted">
             {formatClock()}
@@ -491,6 +497,61 @@ function MobileBubble({
       </div>
     </li>
   );
+}
+
+function MobileAttachmentCard({
+  att,
+  isMe,
+}: {
+  att: TalkAttachment;
+  isMe: boolean;
+}) {
+  const isImage = att.mime?.startsWith('image/') || /\.(png|jpe?g|gif|svg|webp)$/i.test(att.name);
+  if (isImage && att.url) {
+    return (
+      <a
+        href={att.url}
+        target="_blank"
+        rel="noreferrer"
+        className={cn(
+          'overflow-hidden rounded-xl border border-surface-border bg-white shadow-sm',
+          isMe ? 'self-end' : 'self-start'
+        )}
+      >
+        <img
+          src={att.url}
+          alt={att.name}
+          className="block max-h-40 w-auto max-w-[180px] object-contain"
+        />
+      </a>
+    );
+  }
+  return (
+    <div
+      className={cn(
+        'flex w-full max-w-[200px] items-center gap-2 rounded-xl border border-surface-border bg-white px-2 py-1.5 text-[11px] shadow-sm',
+        isMe ? 'self-end' : 'self-start'
+      )}
+    >
+      <FileExtBadge name={att.name} size="sm" />
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium text-ink-primary" title={att.name}>
+          {att.name}
+        </p>
+        {typeof att.size === 'number' && (
+          <p className="text-[10px] text-ink-muted">
+            {formatFileSize(att.size)}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function isTalkFromMobileViewer(

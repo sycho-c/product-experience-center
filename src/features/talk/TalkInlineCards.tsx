@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { FileExtBadge } from './FileExtBadge';
 import type { Talk, TalkAction } from '@/types/talk';
 
 interface TalkInlineCardsProps {
@@ -141,11 +142,39 @@ function FileCard({ talk }: { talk: Talk }) {
     name: '추가_특약_조건_상세.xlsx',
     size: 24_576,
   };
+  const isImage =
+    file.mime?.startsWith('image/') ||
+    /\.(png|jpe?g|gif|svg|webp)$/i.test(file.name);
+  if (isImage && file.url) {
+    return (
+      <a
+        href={file.url}
+        target="_blank"
+        rel="noreferrer"
+        className="block w-[260px] overflow-hidden rounded-lg border border-surface-border bg-surface-card shadow-soft hover:border-brand-primary"
+      >
+        <img
+          src={file.url}
+          alt={file.name}
+          className="block max-h-[200px] w-full object-contain bg-surface-canvas"
+        />
+        <div className="flex items-center gap-2 px-2.5 py-1.5">
+          <Paperclip className="h-3 w-3 text-brand-primary" />
+          <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-ink-primary">
+            {file.name}
+          </span>
+          {typeof file.size === 'number' && (
+            <span className="text-[10px] text-ink-muted">
+              {Math.round(file.size / 1024)} KB
+            </span>
+          )}
+        </div>
+      </a>
+    );
+  }
   return (
-    <div className="flex w-[260px] items-center gap-2 rounded-lg border border-surface-border bg-surface-card p-2.5">
-      <div className="grid h-8 w-8 place-items-center rounded bg-blue-50 text-brand-primary">
-        <Paperclip className="h-4 w-4" />
-      </div>
+    <div className="flex w-[260px] items-center gap-2.5 rounded-lg border border-surface-border bg-surface-card p-2.5">
+      <FileExtBadge name={file.name} />
       <div className="min-w-0 flex-1">
         <div className="truncate text-xs font-medium text-ink-primary">
           {file.name}

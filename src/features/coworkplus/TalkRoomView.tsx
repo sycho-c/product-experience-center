@@ -95,17 +95,19 @@ export function TalkRoomView({
     >
       {/* Header */}
       <header className="flex items-center gap-3 border-b border-surface-border bg-surface-card px-4 py-3">
-        <div className="grid h-8 w-8 place-items-center rounded-full bg-blue-50 text-brand-primary">
+        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blue-50 text-brand-primary">
           <Users className="h-4 w-4" />
         </div>
-        <div className="flex items-center gap-1.5 text-sm font-semibold text-ink-primary">
-          <span>{roomTitle}</span>
-          <span className="inline-flex items-center gap-0.5 text-[11px] text-ink-muted font-normal">
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 text-sm font-semibold text-ink-primary">
+          <span className="min-w-0 flex-1 truncate" title={roomTitle}>
+            {roomTitle}
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-0.5 text-[11px] text-ink-muted font-normal">
             <Users className="h-3 w-3" />
             {participantCount}
           </span>
         </div>
-        <div className="ml-auto flex items-center gap-1 text-ink-muted">
+        <div className="flex shrink-0 items-center gap-1 text-ink-muted">
           <HeaderIconButton
             icon={<MaskedCheck />}
             label="확인"
