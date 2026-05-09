@@ -1,0 +1,91 @@
+import { Bell, UserCircle2 } from 'lucide-react';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { Logo } from '@/components/Logo';
+import { cn } from '@/lib/utils';
+
+const NAV_ITEMS: { to: string; label: string; matchPaths?: string[] }[] = [
+  { to: '/scenarios', label: '시나리오 체험', matchPaths: ['/scenarios', '/'] },
+  { to: '/#features', label: '제품 기능' },
+  { to: '/#future', label: '미래 기능 (Concept)' },
+  { to: '/#cases', label: '고객 사례' },
+  { to: '/#guide', label: '가이드' },
+];
+
+export function AppShell() {
+  const location = useLocation();
+  const isExperience = location.pathname.includes('/experience');
+
+  return (
+    <div className="min-h-screen flex flex-col bg-surface-canvas">
+      <header className="sticky top-0 z-30 border-b border-surface-border bg-surface-card/95 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-[1480px] items-center gap-6 px-6">
+          <Link to="/" className="flex items-center gap-2">
+            <Logo />
+            <Badge variant="brand" className="ml-1">
+              Beta
+            </Badge>
+          </Link>
+
+          <nav className="ml-6 hidden items-center gap-1 lg:flex">
+            {NAV_ITEMS.map((item) => {
+              const active = item.matchPaths?.some((p) =>
+                p === '/' ? location.pathname === '/' : location.pathname.startsWith(p)
+              );
+              return item.to.startsWith('/#') ? (
+                <a
+                  key={item.to}
+                  href={item.to}
+                  className="px-3 py-2 text-sm text-ink-secondary hover:text-ink-primary"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={cn(
+                    'px-3 py-2 text-sm font-medium',
+                    active
+                      ? 'text-brand-primary'
+                      : 'text-ink-secondary hover:text-ink-primary'
+                  )}
+                >
+                  {item.label}
+                </NavLink>
+              );
+            })}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-3 text-ink-muted">
+            <button className="grid h-9 w-9 place-items-center rounded-full hover:bg-surface-subtle">
+              <Bell className="h-5 w-5" />
+            </button>
+            <button className="grid h-9 w-9 place-items-center rounded-full hover:bg-surface-subtle">
+              <UserCircle2 className="h-7 w-7" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main
+        className={cn(
+          'flex-1 w-full',
+          isExperience ? '' : 'mx-auto max-w-[1480px] px-6 py-10'
+        )}
+      >
+        <Outlet />
+      </main>
+
+      {!isExperience && (
+        <footer className="border-t border-surface-border bg-surface-card">
+          <div className="mx-auto max-w-[1480px] px-6 py-6 text-xs text-ink-muted">
+            모든 데이터는 시나리오 기반의 더미 데이터입니다.
+            <span className="mx-2">·</span>
+            Copyright © Spectra Co.Ltd Incorporated. All rights reserved.
+          </div>
+        </footer>
+      )}
+    </div>
+  );
+}
