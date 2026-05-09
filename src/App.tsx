@@ -3,6 +3,7 @@ import { AppShell } from '@/layouts/AppShell';
 import { HomeRoute } from '@/routes/HomeRoute';
 import { ScenarioListRoute } from '@/routes/ScenarioListRoute';
 import { ScenarioExperienceRoute } from '@/routes/ScenarioExperienceRoute';
+import { PlaygroundRoute } from '@/routes/PlaygroundRoute';
 import { NotFoundRoute } from '@/routes/NotFoundRoute';
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
             path="/scenarios/:id/experience"
             element={<ScenarioExperienceRoute />}
           />
+          <Route path="/features" element={<PlaygroundRoute />} />
           <Route path="*" element={<NotFoundRoute />} />
         </Route>
       </Routes>

@@ -1,15 +1,25 @@
 import { Link } from 'react-router-dom';
 import { Monitor, Smartphone } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import type { ScenarioSummary } from '@/types/scenario';
 import { cn } from '@/lib/utils';
 
-const CATEGORY_LABEL: Record<ScenarioSummary['category'], string> = {
+export const CATEGORY_LABEL: Record<ScenarioSummary['category'], string> = {
   'customer-case': '고객 사례',
-  feature: '기본 기능',
-  'future-concept': '미래 기능',
+  feature: '제품 기능',
+  'future-concept': '컨셉 기능',
   industry: '업종별',
+};
+
+export const CATEGORY_VARIANT: Record<
+  ScenarioSummary['category'],
+  BadgeProps['variant']
+> = {
+  'customer-case': 'brand',
+  feature: 'success',
+  'future-concept': 'warning',
+  industry: 'neutral',
 };
 
 const DIFFICULTY_LABEL: Record<ScenarioSummary['difficulty'], string> = {
@@ -38,7 +48,9 @@ export function ScenarioCard({ scenario, className }: ScenarioCardProps) {
     >
       <Card className="h-full p-5 transition-shadow group-hover:shadow-elev">
         <div className="flex items-center justify-between">
-          <Badge variant="neutral">{CATEGORY_LABEL[scenario.category]}</Badge>
+          <Badge variant={CATEGORY_VARIANT[scenario.category]}>
+            {CATEGORY_LABEL[scenario.category]}
+          </Badge>
           <span className="text-xs text-ink-muted">
             {DIFFICULTY_LABEL[scenario.difficulty]}
           </span>

@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutPanelLeft, MonitorSmartphone, Users } from 'lucide-react';
-import { ScenarioCard } from '@/components/ScenarioCard';
-import { EnvironmentCard } from '@/components/EnvironmentCard';
+import {
+  ArrowRight,
+  LayoutPanelLeft,
+  MonitorSmartphone,
+  Users,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { listScenarios } from '@/lib/mock-api';
 import type { ScenarioSummary } from '@/types/scenario';
 
@@ -25,12 +29,45 @@ const HERO_FEATURES = [
   },
 ];
 
+const CATEGORY_SUMMARY: {
+  key: ScenarioSummary['category'];
+  label: string;
+  chipClass: string;
+}[] = [
+  {
+    key: 'customer-case',
+    label: '고객 사례',
+    chipClass: 'bg-brand-primarySoft text-brand-primary',
+  },
+  {
+    key: 'feature',
+    label: '제품 기능',
+    chipClass: 'bg-emerald-50 text-emerald-700',
+  },
+  {
+    key: 'future-concept',
+    label: '컨셉 기능',
+    chipClass: 'bg-amber-50 text-amber-700',
+  },
+];
+
 export function HomeRoute() {
   const [scenarios, setScenarios] = useState<ScenarioSummary[] | null>(null);
 
   useEffect(() => {
     listScenarios().then(setScenarios).catch(() => setScenarios([]));
   }, []);
+
+  const counts = (scenarios ?? []).reduce<
+    Record<ScenarioSummary['category'], number>
+  >(
+    (acc, s) => {
+      acc[s.category] = (acc[s.category] ?? 0) + 1;
+      return acc;
+    },
+    { 'customer-case': 0, feature: 0, 'future-concept': 0, industry: 0 }
+  );
+  const totalCount = scenarios?.length ?? 0;
 
   return (
     <div className="space-y-12">
@@ -64,39 +101,61 @@ export function HomeRoute() {
         <HeroPreview />
       </section>
 
-      {/* Scenario list */}
+      {/* Scenario menu CTA */}
       <section>
-        <header className="mb-5 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-ink-primary">시나리오 선택</h2>
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/scenarios">전체 시나리오 보기 →</Link>
-          </Button>
-        </header>
-        {scenarios === null ? (
-          <ScenarioGridSkeleton />
-        ) : scenarios.length === 0 ? (
-          <p className="text-sm text-ink-secondary">아직 등록된 시나리오가 없습니다.</p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            {scenarios.map((scenario) => (
-              <ScenarioCard key={scenario.id} scenario={scenario} />
-            ))}
-          </div>
-        )}
-      </section>
+        <Link
+          to="/scenarios"
+          className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 rounded-2xl"
+        >
+          <Card className="group flex flex-col gap-6 p-6 transition-shadow hover:shadow-elev md:flex-row md:items-center md:gap-10 md:p-8">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand-primarySoft text-brand-primary">
+                  <LayoutPanelLeft className="h-5 w-5" />
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                  Scenario Library
+                </span>
+              </div>
+              <h2 className="mt-3 text-2xl font-bold text-ink-primary">
+                시나리오 체험으로 이동
+              </h2>
+              <p className="mt-2 max-w-xl text-sm text-ink-secondary leading-relaxed">
+                고객사 사례, 제품 기능, 미래 기능까지 카테고리별로 정리된
+                시나리오 라이브러리에서 원하는 흐름을 골라 체험하세요.
+              </p>
 
-      {/* Environment select */}
-      <section className="rounded-2xl bg-white p-6 shadow-soft md:p-8">
-        <header className="mb-5">
-          <h2 className="text-xl font-semibold text-ink-primary">체험 환경 선택</h2>
-          <p className="mt-1 text-sm text-ink-secondary">
-            선택한 환경에 맞춰 최적화된 UI를 제공합니다.
-          </p>
-        </header>
-        <div className="grid gap-4 md:grid-cols-2">
-          <EnvironmentCard kind="pc" />
-          <EnvironmentCard kind="mobile" />
-        </div>
+              <ul className="mt-5 flex flex-wrap items-center gap-2">
+                {CATEGORY_SUMMARY.map(({ key, label, chipClass }) => (
+                  <li
+                    key={key}
+                    className={
+                      'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ' +
+                      chipClass
+                    }
+                  >
+                    <span>{label}</span>
+                    <span className="opacity-70">{counts[key]}</span>
+                  </li>
+                ))}
+                <li className="ml-1 text-xs text-ink-muted">
+                  총 {totalCount}개 시나리오
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex shrink-0 items-center md:flex-col md:items-end md:gap-3">
+              <Button
+                size="lg"
+                className="pointer-events-none"
+                tabIndex={-1}
+              >
+                전체 시나리오 보기
+                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </div>
+          </Card>
+        </Link>
       </section>
     </div>
   );
@@ -147,19 +206,6 @@ function HeroPreview() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function ScenarioGridSkeleton() {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-44 rounded-xl bg-surface-card ring-1 ring-surface-border animate-pulse"
-        />
-      ))}
     </div>
   );
 }

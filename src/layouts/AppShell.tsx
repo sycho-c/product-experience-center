@@ -1,20 +1,18 @@
-import { Bell, UserCircle2 } from 'lucide-react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
 
-const NAV_ITEMS: { to: string; label: string; matchPaths?: string[] }[] = [
-  { to: '/scenarios', label: '시나리오 체험', matchPaths: ['/scenarios', '/'] },
-  { to: '/#features', label: '제품 기능' },
-  { to: '/#future', label: '미래 기능 (Concept)' },
-  { to: '/#cases', label: '고객 사례' },
-  { to: '/#guide', label: '가이드' },
+const NAV_ITEMS: { to: string; label: string; matchPaths: string[] }[] = [
+  { to: '/scenarios', label: '시나리오 체험', matchPaths: ['/scenarios'] },
+  { to: '/features', label: '제품 기능', matchPaths: ['/features'] },
 ];
 
 export function AppShell() {
   const location = useLocation();
-  const isExperience = location.pathname.includes('/experience');
+  const isFullscreen =
+    location.pathname.includes('/experience') ||
+    location.pathname.startsWith('/features');
 
   return (
     <div className="min-h-screen flex flex-col bg-surface-canvas">
@@ -29,18 +27,10 @@ export function AppShell() {
 
           <nav className="ml-6 hidden items-center gap-1 lg:flex">
             {NAV_ITEMS.map((item) => {
-              const active = item.matchPaths?.some((p) =>
-                p === '/' ? location.pathname === '/' : location.pathname.startsWith(p)
+              const active = item.matchPaths.some((p) =>
+                location.pathname.startsWith(p)
               );
-              return item.to.startsWith('/#') ? (
-                <a
-                  key={item.to}
-                  href={item.to}
-                  className="px-3 py-2 text-sm text-ink-secondary hover:text-ink-primary"
-                >
-                  {item.label}
-                </a>
-              ) : (
+              return (
                 <NavLink
                   key={item.to}
                   to={item.to}
@@ -57,27 +47,20 @@ export function AppShell() {
             })}
           </nav>
 
-          <div className="ml-auto flex items-center gap-3 text-ink-muted">
-            <button className="grid h-9 w-9 place-items-center rounded-full hover:bg-surface-subtle">
-              <Bell className="h-5 w-5" />
-            </button>
-            <button className="grid h-9 w-9 place-items-center rounded-full hover:bg-surface-subtle">
-              <UserCircle2 className="h-7 w-7" />
-            </button>
-          </div>
+          <div className="ml-auto" />
         </div>
       </header>
 
       <main
         className={cn(
           'flex-1 w-full',
-          isExperience ? '' : 'mx-auto max-w-[1480px] px-6 py-10'
+          isFullscreen ? '' : 'mx-auto max-w-[1480px] px-6 py-10'
         )}
       >
         <Outlet />
       </main>
 
-      {!isExperience && (
+      {!isFullscreen && (
         <footer className="border-t border-surface-border bg-surface-card">
           <div className="mx-auto max-w-[1480px] px-6 py-6 text-xs text-ink-muted">
             모든 데이터는 시나리오 기반의 더미 데이터입니다.
