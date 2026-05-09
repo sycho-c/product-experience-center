@@ -55,7 +55,7 @@ export function TalkRoomList() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="고객/대화방/내용검색 (2글자 이상)"
-              className="h-9 w-full rounded-md border border-surface-border bg-surface-card pl-9 pr-3 text-sm placeholder:text-ink-muted focus:border-brand-primary focus:outline-none"
+              className="h-9 w-full rounded-md border border-surface-border bg-surface-card pl-9 pr-3 text-xs placeholder:text-ink-muted focus:border-brand-primary focus:outline-none"
             />
           </div>
           <button
@@ -116,17 +116,17 @@ export function TalkRoomList() {
                     <Users className="h-4 w-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-ink-primary">
+                    <div className="flex items-center gap-2 text-[13px] font-semibold text-ink-primary">
                       <span className="truncate">{room.title}</span>
-                      <span className="inline-flex items-center gap-0.5 text-[11px] text-ink-muted font-normal">
+                      <span className="inline-flex items-center gap-0.5 text-[10px] text-ink-muted font-normal">
                         <Users className="h-3 w-3" />
                         {room.participantCount}
                       </span>
                     </div>
-                    <div className="mt-0.5 truncate text-sm text-ink-secondary">
+                    <div className="mt-0.5 truncate text-xs text-ink-secondary">
                       {room.preview}
                     </div>
-                    <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-ink-muted">
+                    <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-ink-muted">
                       {room.device && (
                         <span className="rounded bg-surface-subtle px-1 py-0.5 font-medium">
                           {room.device}

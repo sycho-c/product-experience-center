@@ -136,7 +136,12 @@ const scenario: Scenario = {
           title: '협업 대화방',
           participantCount: 1,
           preview: '새 대화방에 입장했습니다.',
-          description: "좌측 대화방 리스트에 '협업 대화방' 이 추가됩니다.",
+          toast: {
+            message: '대화방이 생성되었습니다.',
+            tone: 'success',
+          },
+          description:
+            "좌측 대화방 리스트에 '협업 대화방' 이 추가되고 성공 토스트가 표시됩니다.",
         },
         {
           kind: 'mobile_push_notice',
@@ -161,12 +166,6 @@ const scenario: Scenario = {
           device: 'PC',
           isHost: true,
           description: '호스트(나)가 참여자에 포함됩니다.',
-        },
-        {
-          kind: 'show_toast',
-          message: '대화방이 생성되었습니다.',
-          tone: 'success',
-          description: '좌측 하단에 성공 토스트가 표시됩니다.',
         },
         {
           kind: 'append_system_message',

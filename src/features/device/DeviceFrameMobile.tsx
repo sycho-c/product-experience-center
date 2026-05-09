@@ -18,6 +18,7 @@ import { MockModal } from '@/components/MockModal';
 import { formatClock } from '@/lib/time';
 import { cn } from '@/lib/utils';
 import type { Talk } from '@/types/talk';
+import type { ParticipantSeed } from '@/types/uiaction';
 
 const EMPTY_TALKS: Talk[] = [];
 const EMPTY_PARTICIPANTS: never[] = [];
@@ -74,7 +75,7 @@ export function DeviceFrameMobile({
 
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden py-1">
         <div
-          className="@container/device relative flex h-full max-h-[640px] min-h-[420px] w-auto flex-col overflow-hidden rounded-[36px] border-[6px] border-ink-primary/85 bg-surface-card shadow-elev"
+          className="@container/device relative flex h-full max-h-[640px] min-h-0 w-auto flex-col overflow-hidden rounded-[36px] border-[6px] border-ink-primary/85 bg-surface-card shadow-elev"
           style={{ aspectRatio: '9 / 19.5' }}
         >
           {/* Notch */}
@@ -330,7 +331,8 @@ function ChatRoomScreen({
             <MobileBubble
               key={t.id}
               talk={t}
-              viewerId={viewerParticipant?.id ?? null}
+              viewerParticipant={viewerParticipant}
+              participants={participants}
               isKakao={isKakao}
             />
           ))}
@@ -364,11 +366,17 @@ function ChatRoomScreen({
 
 interface MobileBubbleProps {
   talk: Talk;
-  viewerId: string | null;
+  viewerParticipant: ParticipantSeed | null;
+  participants: ParticipantSeed[];
   isKakao: boolean;
 }
 
-function MobileBubble({ talk, viewerId, isKakao }: MobileBubbleProps) {
+function MobileBubble({
+  talk,
+  viewerParticipant,
+  participants,
+  isKakao,
+}: MobileBubbleProps) {
   const sys = talk.type === 'system' || talk.from.role === 'system';
   if (sys) {
     return (
@@ -388,15 +396,15 @@ function MobileBubble({ talk, viewerId, isKakao }: MobileBubbleProps) {
   }
 
   // Guest 시점 가시성:
-  // - 본인이 보낸 메시지 (from.userId === viewerId 또는 from.role === 'customer' fallback)
+  // - 본인이 보낸 메시지 (from.userId 또는 외부 참여자명으로 viewer 와 매칭)
   // - 비밀 메시지 가시성: viewer === recipient → 풀 / 외 → placeholder
-  const isMe =
-    (viewerId && talk.from.userId === viewerId) ||
-    (!viewerId && talk.from.role === 'customer');
+  const isMe = isTalkFromMobileViewer(talk, viewerParticipant);
   const isSecret = !!talk.secret;
   const isViewerRecipient =
-    isSecret && viewerId === talk.secret!.recipientParticipantId;
+    isSecret && viewerParticipant?.id === talk.secret!.recipientParticipantId;
   const showPlaceholder = isSecret && !isViewerRecipient && !isMe;
+  const senderName = resolveMobileSenderName(talk, participants);
+  const avatarLabel = getAvatarLabel(senderName);
 
   const isNavy = talk.bubbleTone === 'navy' || isSecret;
   const navyStyles = 'bg-brand-sidebar text-white';
@@ -412,54 +420,60 @@ function MobileBubble({ talk, viewerId, isKakao }: MobileBubbleProps) {
       ? navyStyles
       : 'bg-surface-subtle text-ink-primary';
 
+  const bubble = showPlaceholder ? (
+    <div className="rounded-2xl bg-surface-subtle/80 px-3 py-1.5 text-[11px] italic text-ink-muted">
+      <span className="inline-flex items-center gap-1">
+        <Lock className="h-2.5 w-2.5" />
+        비밀 메시지로 작성되었습니다.
+      </span>
+    </div>
+  ) : (
+    <div
+      className={cn(
+        'rounded-2xl px-3 py-1.5 text-xs leading-relaxed',
+        isMe ? meStyles : otherStyles
+      )}
+    >
+      {isSecret && (
+        <div className="mb-0.5 inline-flex items-center gap-1 text-[10px] font-medium text-white/80">
+          <Lock className="h-2.5 w-2.5" />
+          비밀 메시지
+        </div>
+      )}
+      {talk.content}
+    </div>
+  );
+
   return (
     <li className={cn('flex', isMe ? 'justify-end' : 'justify-start')}>
-      <div className="flex max-w-[80%] flex-col gap-0.5">
-        {showPlaceholder ? (
-          <div className="rounded-2xl bg-surface-subtle/80 px-3 py-1.5 text-[11px] italic text-ink-muted">
-            <span className="inline-flex items-center gap-1">
-              <Lock className="h-2.5 w-2.5" />
-              비밀 메시지로 작성되었습니다.
-            </span>
-          </div>
-        ) : (
-          <div
-            className={cn(
-              'rounded-2xl px-3 py-1.5 text-xs leading-relaxed',
-              isMe ? meStyles : otherStyles
-            )}
-          >
-            {!isMe && talk.from.displayName && (
-              <div className="text-[10px] text-ink-muted/80 mb-0.5">
-                {talk.from.displayName}
-              </div>
-            )}
-            {isSecret && (
-              <div
-                className={cn(
-                  'mb-0.5 inline-flex items-center gap-1 text-[10px] font-medium',
-                  isMe ? 'text-white/80' : 'text-white/80'
-                )}
-              >
-                <Lock className="h-2.5 w-2.5" />
-                비밀 메시지
-              </div>
-            )}
-            {talk.content}
-            <div
-              className={cn(
-                'mt-0.5 text-[10px]',
-                isKakao
-                  ? 'text-ink-muted'
-                  : isMe
-                    ? 'text-white/80'
-                    : isNavy
-                      ? 'text-white/70'
-                      : 'text-ink-muted'
-              )}
-            >
-              {formatClock()}
-            </div>
+      {!isMe && (
+        <div className="mr-2 mt-4 grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-brand-primary text-[10px] font-semibold text-white shadow-soft">
+          {talk.from.avatarUrl ? (
+            <img
+              src={talk.from.avatarUrl}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            avatarLabel
+          )}
+        </div>
+      )}
+      <div
+        className={cn(
+          'flex max-w-[80%] flex-col gap-0.5',
+          isMe ? 'items-end' : 'items-start'
+        )}
+      >
+        {!isMe && senderName && (
+          <span className="text-[11px] font-semibold text-ink-secondary">
+            {senderName}
+          </span>
+        )}
+        {bubble}
+        {!showPlaceholder && (
+          <div className="text-[10px] text-ink-muted">
+            {formatClock()}
           </div>
         )}
         {talk.taskChip && !showPlaceholder && (
@@ -477,4 +491,41 @@ function MobileBubble({ talk, viewerId, isKakao }: MobileBubbleProps) {
       </div>
     </li>
   );
+}
+
+function isTalkFromMobileViewer(
+  talk: Talk,
+  viewerParticipant: ParticipantSeed | null
+): boolean {
+  if (!viewerParticipant) return talk.from.role === 'customer';
+  if (talk.from.userId) return talk.from.userId === viewerParticipant.id;
+  return (
+    talk.from.role === 'customer' &&
+    talk.from.displayName === viewerParticipant.displayName
+  );
+}
+
+function resolveMobileSenderName(
+  talk: Talk,
+  participants: ParticipantSeed[]
+): string | undefined {
+  if (talk.from.userId) {
+    const participant = participants.find((p) => p.id === talk.from.userId);
+    if (participant) return participant.displayName;
+  }
+
+  if (talk.from.role === 'me' && talk.from.displayName === '나') {
+    const host =
+      participants.find((p) => p.isHost) ??
+      participants.find((p) => !p.external);
+    if (host) return host.displayName;
+  }
+
+  return talk.from.displayName;
+}
+
+function getAvatarLabel(name?: string): string {
+  const trimmed = name?.trim();
+  if (!trimmed) return '?';
+  return trimmed.slice(-2);
 }

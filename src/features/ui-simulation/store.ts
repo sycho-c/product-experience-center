@@ -237,6 +237,22 @@ export const useUISimStore = create<UISimState & UISimActions>()(
         if (!s.roomTalks[roomId]) s.roomTalks[roomId] = [];
         if (!s.roomTalks[roomId].find((t) => t.id === talk.id)) {
           s.roomTalks[roomId].push(talk);
+          if (isParticipantMessage(talk)) {
+            const room = s.rooms.find((r) => r.id === roomId);
+            const timestamp = nowStamp();
+            if (room) {
+              room.preview = talk.content;
+              room.timestamp = timestamp;
+            }
+
+            const mobileChat = s.mobileChatList.find(
+              (entry) => entry.roomId === roomId
+            );
+            if (mobileChat) {
+              mobileChat.lastMessage = talk.content;
+              mobileChat.time = nowClock();
+            }
+          }
         }
       }),
     patchTalk: (roomId, talkId, patch) =>
@@ -285,3 +301,26 @@ export const useUISimStore = create<UISimState & UISimActions>()(
       }),
   }))
 );
+
+function isParticipantMessage(talk: Talk): boolean {
+  return talk.type === 'message' && talk.from.role !== 'system';
+}
+
+function nowStamp(): string {
+  const d = new Date();
+  const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+  const dd = d.getDate().toString().padStart(2, '0');
+  const hh = d.getHours().toString().padStart(2, '0');
+  const mi = d.getMinutes().toString().padStart(2, '0');
+  const ss = d.getSeconds().toString().padStart(2, '0');
+  return `${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
+function nowClock(): string {
+  const d = new Date();
+  const h = d.getHours();
+  const m = d.getMinutes().toString().padStart(2, '0');
+  const period = h >= 12 ? '오후' : '오전';
+  const hour12 = ((h + 11) % 12) + 1;
+  return `${period} ${hour12.toString().padStart(2, '0')}:${m}`;
+}

@@ -205,6 +205,12 @@ export const UIActionSchema = z.discriminatedUnion('kind', [
     title: z.string(),
     participantCount: z.number().int().nonnegative(),
     preview: z.string(),
+    toast: z
+      .object({
+        message: z.string(),
+        tone: z.enum(['success', 'info', 'warning']).optional(),
+      })
+      .optional(),
     description: z.string(),
   }),
   z.object({

@@ -63,6 +63,13 @@ export function applyUIAction(action: UIAction): void {
         device: 'PC',
         timestamp: nowStamp(),
       });
+      if (action.toast) {
+        s.pushToast({
+          id: `toast_${Date.now()}`,
+          message: action.toast.message,
+          tone: action.toast.tone ?? 'success',
+        });
+      }
       break;
     case 'select_room':
       s.selectRoom(action.roomId);

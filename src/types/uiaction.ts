@@ -104,6 +104,10 @@ export type UIAction =
       title: string;
       participantCount: number;
       preview: string;
+      toast?: {
+        message: string;
+        tone?: 'success' | 'info' | 'warning';
+      };
       description: string;
     }
   | { kind: 'select_room'; roomId: string; description: string }

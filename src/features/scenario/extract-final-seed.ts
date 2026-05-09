@@ -51,6 +51,20 @@ function genSeedTalkId(roomId: string): string {
   return `seed_${roomId}_${seedTalkCounter}`;
 }
 
+function updateRoomPreview(
+  draft: SeedDraft,
+  roomId: string,
+  talk: Talk
+): void {
+  if (!isParticipantMessage(talk)) return;
+  const room = draft.rooms.find((r) => r.id === roomId);
+  if (room) room.preview = talk.content;
+}
+
+function isParticipantMessage(talk: Talk): boolean {
+  return talk.type === 'message' && talk.from.role !== 'system';
+}
+
 function applyToDraft(d: SeedDraft, action: UIAction): void {
   switch (action.kind) {
     case 'open_modal':
@@ -128,6 +142,7 @@ function applyToDraft(d: SeedDraft, action: UIAction): void {
       };
       if (!d.roomTalks[action.roomId]) d.roomTalks[action.roomId] = [];
       d.roomTalks[action.roomId].push(t);
+      updateRoomPreview(d, action.roomId, t);
       break;
     }
     case 'add_participant': {
@@ -166,6 +181,7 @@ function applyToDraft(d: SeedDraft, action: UIAction): void {
       };
       if (!d.roomTalks[action.roomId]) d.roomTalks[action.roomId] = [];
       d.roomTalks[action.roomId].push(t);
+      updateRoomPreview(d, action.roomId, t);
       break;
     }
     case 'attach_task_chip': {
