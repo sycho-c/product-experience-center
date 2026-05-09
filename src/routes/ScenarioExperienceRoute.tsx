@@ -59,7 +59,7 @@ export function ScenarioExperienceRoute() {
     <ExperienceLayout
       scenario={scenario}
       loading={loading}
-      left={
+      right={
         <div className="space-y-4">
           <BeforeAfterToggle />
           {scenario && (

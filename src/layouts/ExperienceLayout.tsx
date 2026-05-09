@@ -8,17 +8,15 @@ import type { Scenario } from '@/types/scenario';
 interface ExperienceLayoutProps {
   scenario: Scenario | null;
   loading: boolean;
-  left: React.ReactNode;
   center: React.ReactNode;
-  /** @deprecated 23절 재설계: right 슬롯 제거. 좌측 통합 패널 사용. */
-  right?: React.ReactNode;
+  /** 통합 정보 패널. 우측 320px aside 에 렌더된다. */
+  right: React.ReactNode;
   bottom: React.ReactNode;
 }
 
 export function ExperienceLayout({
   scenario,
   loading,
-  left,
   center,
   right,
   bottom,
@@ -66,14 +64,14 @@ export function ExperienceLayout({
         </div>
       </div>
 
-      {/* 2-column body — 좌측 통합 패널 + 가운데 디바이스 영역(레이아웃은 center 슬롯이 결정) */}
+      {/* 2-column body — 가운데 디바이스 영역 + 우측 통합 정보 패널 */}
       <div className="flex min-h-0 flex-1">
-        <aside className="w-[320px] shrink-0 overflow-y-auto scrollbar-thin border-r border-surface-border bg-surface-card p-4">
-          {left}
-        </aside>
         <main className="flex min-w-0 flex-1 flex-col bg-surface-canvas p-3">
           <div className={cn('flex flex-1 min-h-0')}>{center}</div>
         </main>
+        <aside className="w-[320px] shrink-0 overflow-y-auto scrollbar-thin border-l border-surface-border bg-surface-card p-4">
+          {right}
+        </aside>
       </div>
 
       {bottom}
