@@ -28,6 +28,8 @@ export function BizFormModal({ roomId }: BizFormModalProps) {
   const [submitting, setSubmitting] = useState(false);
 
   // 시나리오의 mobile_fill_bizform_field 가 값을 채울 때 해당 필드가 보이도록 자동 스크롤.
+  // scrollIntoView 는 ancestor 페이지 스크롤까지 영향을 주므로 모달 내부 컨테이너만 직접 조정.
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const fieldRefs = useRef<Record<string, HTMLLIElement | null>>({});
   const lastValuesRef = useRef<Record<string, string>>({});
   useEffect(() => {
@@ -40,10 +42,13 @@ export function BizFormModal({ roomId }: BizFormModalProps) {
       const cur = f.value ?? '';
       const prev = lastValuesRef.current[f.id];
       if (initialized && prev !== undefined && prev !== cur) {
-        fieldRefs.current[f.id]?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-        });
+        const container = scrollContainerRef.current;
+        const target = fieldRefs.current[f.id];
+        if (container && target) {
+          const top = target.offsetTop - container.offsetTop;
+          // 컨테이너 상하 여백 고려해 약간 위로
+          container.scrollTo({ top: Math.max(0, top - 8), behavior: 'smooth' });
+        }
         break;
       }
     }
@@ -120,7 +125,10 @@ export function BizFormModal({ roomId }: BizFormModalProps) {
             <X className="h-3.5 w-3.5" />
           </button>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3 scrollbar-thin">
+        <div
+          ref={scrollContainerRef}
+          className="min-h-0 flex-1 overflow-y-auto px-3 py-3 scrollbar-thin"
+        >
           <ul className="space-y-3">
             {modal.fields.map((f) => (
               <li

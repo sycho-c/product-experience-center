@@ -37,15 +37,20 @@ export function TaskRegistrationModal() {
   const roomTalks = useUISimStore((s) => s.roomTalks);
 
   // OCR 진행/완료 시 고객 상세 영역으로 자동 스크롤 — 좌측 폼이 영역 밖으로 잘릴 때 보이게.
+  // scrollIntoView 는 모든 ancestor 까지 스크롤시켜 페이지가 위로 밀리는 부작용이 있으므로,
+  // 모달 내부 scroll container 의 scrollTop 만 직접 조정한다.
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const customerSectionRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
     if (!modal?.open) return;
-    if (ocrStatus === 'extracting' || ocrStatus === 'completed') {
-      customerSectionRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
+    if (ocrStatus !== 'extracting' && ocrStatus !== 'completed') return;
+    const container = scrollContainerRef.current;
+    const target = customerSectionRef.current;
+    if (!container || !target) return;
+    container.scrollTo({
+      top: target.offsetTop - container.offsetTop,
+      behavior: 'smooth',
+    });
   }, [ocrStatus, modal?.open]);
 
   if (!modal?.open) return null;
@@ -124,7 +129,10 @@ export function TaskRegistrationModal() {
             </div>
           </header>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 scrollbar-thin">
+          <div
+            ref={scrollContainerRef}
+            className="min-h-0 flex-1 overflow-y-auto px-5 py-4 scrollbar-thin"
+          >
             {sourceTalks.length > 1 && (
               <section className="mb-3 rounded-lg border border-brand-primary/30 bg-brand-primarySoft/30 p-3">
                 <h3 className="mb-1.5 text-xs font-semibold text-ink-primary">
