@@ -272,16 +272,26 @@ export function TaskRegistrationModal() {
                 />
                 <Field
                   label="가입설계동의 종료일자"
-                  value={v('consentExpiry') || (mode === 'edit' ? '2027-03-22' : '')}
+                  value={
+                    v('consentExpiry') ||
+                    (v('consentStatus') === 'completed' ? '2027-03-22' : '')
+                  }
                   readOnly
                 />
               </div>
 
               {mode === 'edit' && (
                 <div className="mt-3 flex items-center justify-end gap-1.5 border-t border-surface-border pt-3">
-                  <span className="mr-auto rounded-md border border-emerald-300 bg-emerald-50 px-2 py-1 text-[11px] text-emerald-700">
-                    동의서 등록완료
-                  </span>
+                  <ConsentChip status={v('consentStatus')} />
+                  {v('consentStatus') !== 'completed' && (
+                    <button
+                      type="button"
+                      onClick={() => progressOrDo(() => close())}
+                      className="rounded-md border border-brand-primary/40 bg-white px-3 py-1.5 text-[11px] font-medium text-brand-primary hover:bg-brand-primarySoft"
+                    >
+                      동의서 요청
+                    </button>
+                  )}
                   <button
                     type="button"
                     className="rounded-md bg-rose-500 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-rose-600"
@@ -290,7 +300,13 @@ export function TaskRegistrationModal() {
                   </button>
                   <button
                     type="button"
-                    className="rounded-md bg-brand-primary px-3 py-1.5 text-[11px] font-medium text-white hover:bg-brand-primaryHover"
+                    disabled={v('consentStatus') !== 'completed'}
+                    className="rounded-md bg-brand-primary px-3 py-1.5 text-[11px] font-medium text-white hover:bg-brand-primaryHover disabled:cursor-not-allowed disabled:bg-ink-muted"
+                    title={
+                      v('consentStatus') !== 'completed'
+                        ? '가입설계동의서 등록 후 활성화됩니다.'
+                        : undefined
+                    }
                   >
                     장기 가입 설계
                   </button>
@@ -359,6 +375,29 @@ export function TaskRegistrationModal() {
         </aside>
       </div>
     </div>
+  );
+}
+
+function ConsentChip({ status }: { status: string }) {
+  if (status === 'completed') {
+    return (
+      <span className="mr-auto rounded-md border border-emerald-300 bg-emerald-50 px-2 py-1 text-[11px] text-emerald-700">
+        동의서 등록완료
+      </span>
+    );
+  }
+  if (status === 'requested') {
+    return (
+      <span className="mr-auto inline-flex items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] text-amber-700">
+        <Loader2 className="h-3 w-3 animate-spin" />
+        동의서 요청 중 (설계사 작성 대기)
+      </span>
+    );
+  }
+  return (
+    <span className="mr-auto rounded-md border border-rose-300 bg-rose-50 px-2 py-1 text-[11px] text-rose-700">
+      ⚠ 동의서 미수령
+    </span>
   );
 }
 

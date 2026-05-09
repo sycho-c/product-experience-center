@@ -18,6 +18,8 @@ const TEXT_REQUEST_MSG = 'hi-text-request';
 const TASK_ID = 'hi-task-1';
 const PDF_FILE_ID = 'hi-pdf-1';
 const INVITE_NOTICE_ID = 'hi-invite';
+const CONSENT_BIZFORM_ID = 'hi-consent-bf';
+const CONSENT_BIZFORM_MSG = 'hi-consent-bf-msg';
 
 // 손글씨 메모 — 카드/모달의 우측 미리보기용 SVG data URL
 const handwrittenSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="420" height="280" viewBox="0 0 420 280">
@@ -419,12 +421,101 @@ const stepActions: UIAction[][] = [
       description: '영업 SFA 에 고객이 등록되었음을 알립니다.',
     },
   ],
-  // 11. 장기 가입 설계 → 외부 시스템 mock → PDF 채팅 전달
+  // 11. 가입설계동의서 비즈폼 — 모바일에서 작성 → 채팅 inline 카드
   [
     {
       kind: 'highlight',
+      selector: 'task-registration.consent-request',
+      description:
+        "'장기 가입 설계' 가 비활성 — 먼저 '동의서 요청' 버튼이 안내됩니다.",
+    },
+    {
+      kind: 'click_button',
+      buttonId: 'task-registration.consent-request',
+      description:
+        "'동의서 요청' 을 클릭하면 설계사 모바일로 가입설계동의서 비즈폼이 발송됩니다.",
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.consentStatus',
+      value: 'requested',
+      description:
+        "모달의 동의서 영역이 '동의서 요청 중 (설계사 작성 대기)' 로 변경됩니다.",
+    },
+    {
+      kind: 'close_modal',
+      modalId: 'task-registration',
+      description: '모달이 닫히고, 모바일로 시점이 옮겨갑니다.',
+    },
+    {
+      kind: 'mobile_open_bizform',
+      templateId: 'long-insurance-consent',
+      title: '가입설계동의서',
+      fields: [
+        { id: 'customerName', label: '고객명', value: CUSTOMER.name },
+        { id: 'ssn', label: '주민등록번호', value: CUSTOMER.ssn },
+        { id: 'phone', label: '휴대폰번호', value: CUSTOMER.phone },
+        { id: 'address', label: '주소', value: CUSTOMER.address },
+        { id: 'productCategory', label: '동의 상품군', value: '운전자보험' },
+        { id: 'agree', label: '개인정보 활용 동의' },
+        { id: 'signature', label: '전자서명', file: true },
+      ],
+      description:
+        '설계사 모바일에 가입설계동의서 비즈폼이 열립니다. 고객 정보가 미리 채워져 있습니다.',
+    },
+    {
+      kind: 'mobile_fill_bizform_field',
+      fieldId: 'agree',
+      value: '동의',
+      description: "'개인정보 활용 동의' 항목에 동의합니다.",
+    },
+    {
+      kind: 'mobile_fill_bizform_field',
+      fieldId: 'signature',
+      value: '박정균_서명.png',
+      description: '전자서명 이미지를 첨부합니다.',
+    },
+    {
+      kind: 'submit_bizform',
+      roomId: ROOM_ID,
+      bizformId: CONSENT_BIZFORM_ID,
+      title: '가입설계동의서',
+      messageId: CONSENT_BIZFORM_MSG,
+      description:
+        '비즈폼을 제출합니다 — 채팅에 inline 비즈폼 카드가 추가되고 RightRail 비즈폼 패널에도 등록됩니다.',
+    },
+    {
+      kind: 'fill_input',
+      field: 'task-registration.consentStatus',
+      value: 'completed',
+      description: '동의서 등록완료 상태로 토글됩니다.',
+    },
+    {
+      kind: 'show_toast',
+      message: '가입설계동의서가 등록되었습니다.',
+      tone: 'success',
+      description: '동의서 수령 완료 토스트.',
+    },
+  ],
+  // 12. 장기 가입 설계 → 외부 시스템 mock → PDF 채팅 전달
+  [
+    {
+      kind: 'open_modal',
+      modalId: 'task-registration',
+      context: {
+        roomId: ROOM_ID,
+        sourceMessageIds: [IMG_NOTE_MSG, TEXT_REQUEST_MSG],
+        sourceMessageId: IMG_NOTE_MSG,
+        mode: 'edit',
+        designer: DESIGNER_NAME,
+      },
+      description:
+        '할 일을 다시 열면 동의서 등록완료 칩이 보이고 "장기 가입 설계" 버튼이 활성화됩니다.',
+    },
+    {
+      kind: 'highlight',
       selector: 'task-registration.long-design',
-      description: "'장기 가입 설계' 버튼을 안내합니다.",
+      description: "활성화된 '장기 가입 설계' 버튼을 안내합니다.",
     },
     {
       kind: 'click_button',
@@ -466,7 +557,7 @@ const stepActions: UIAction[][] = [
         '설계 결과 PDF 가 자동으로 채팅에 전송됩니다 — 다운로드 없이 채팅 안에서 완결.',
     },
   ],
-  // 12. 할 일 완료 처리
+  // 13. 할 일 완료 처리
   [
     {
       kind: 'update_task_chip_status',
@@ -500,6 +591,7 @@ const stepTitles = [
   'OCR/NER 자동 추출',
   '할 일 저장 — chip 부착',
   '고객 등록',
+  '가입설계동의서 비즈폼 — 모바일 작성',
   '장기 가입 설계 → PDF 전달',
   '할 일 완료',
 ];
@@ -515,6 +607,7 @@ const stepDescriptions = [
   'OCR/NER 분석이 끝나면 고객명·주민번호·휴대폰·주소·직업 5개 필드가 자동으로 채워지고 "OCR 추출 완료" 배지가 표시됩니다.',
   '저장하면 사진 메시지에 "처리중" 할 일 chip 이 부착되고 우측 RightRail 의 할 일 패널에 항목이 추가됩니다.',
   '할 일을 다시 열어 "고객 등록" 버튼을 누르면 영업 시스템(SFA)에 고객이 등록됩니다.',
+  '동의서 미수령 상태에서는 "장기 가입 설계" 가 비활성화됩니다. "동의서 요청"을 누르면 설계사 모바일에 가입설계동의서 비즈폼이 발송되고, 설계사가 작성·서명·제출하면 채팅에 inline 카드가 추가되며 동의서가 등록완료로 바뀝니다.',
   '"장기 가입 설계" 버튼을 누르면 외부 영업 시스템에서 설계가 진행되고 결과 PDF 가 채팅에 자동으로 전송됩니다.',
   '할 일 chip 과 RightRail 항목이 모두 "완료" 로 변경되고 설계매니저가 처리 결과를 안내합니다.',
 ];
