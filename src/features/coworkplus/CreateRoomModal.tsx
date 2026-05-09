@@ -27,6 +27,7 @@ const EXTERNAL_USERS = [
   { id: 'han-01078901234', name: '한가람', phone: '01078901234' },
   { id: 'yoon-01089012345', name: '윤하늘', phone: '01089012345' },
   { id: 'lim-01090123456', name: '임지호', phone: '01090123456' },
+  { id: 'kim-5250223', name: '영업가족-김철수', phone: '(주)에즈금융서비스_TM / 5250223' },
 ];
 
 export function CreateRoomModal() {
@@ -400,14 +401,14 @@ function Step2({
               onClick={onToggleKakao}
               aria-pressed={kakaoOn}
               className={cn(
-                'inline-block h-5 w-9 rounded-full transition-colors',
+                'inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors',
                 kakaoOn ? 'bg-brand-primary' : 'bg-ink-subtle'
               )}
             >
               <span
                 className={cn(
-                  'block h-4 w-4 translate-y-0.5 rounded-full bg-white shadow transition-transform',
-                  kakaoOn ? 'translate-x-5' : 'translate-x-0.5'
+                  'block h-4 w-4 rounded-full bg-white shadow transition-transform',
+                  kakaoOn ? 'translate-x-[18px]' : 'translate-x-0.5'
                 )}
               />
             </button>

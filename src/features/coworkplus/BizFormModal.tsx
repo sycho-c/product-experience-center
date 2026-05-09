@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Paperclip, X } from 'lucide-react';
 import { useUISimStore } from '@/features/ui-simulation/store';
 import { useBizFormStore } from '@/features/domain/bizforms/store';
@@ -26,6 +26,31 @@ export function BizFormModal({ roomId }: BizFormModalProps) {
   const appendTalk = useUISimStore((s) => s.appendTalk);
   const attachBizForm = useBizFormStore((s) => s.attach);
   const [submitting, setSubmitting] = useState(false);
+
+  // 시나리오의 mobile_fill_bizform_field 가 값을 채울 때 해당 필드가 보이도록 자동 스크롤.
+  const fieldRefs = useRef<Record<string, HTMLLIElement | null>>({});
+  const lastValuesRef = useRef<Record<string, string>>({});
+  useEffect(() => {
+    if (!modal) {
+      lastValuesRef.current = {};
+      return;
+    }
+    const initialized = Object.keys(lastValuesRef.current).length > 0;
+    for (const f of modal.fields) {
+      const cur = f.value ?? '';
+      const prev = lastValuesRef.current[f.id];
+      if (initialized && prev !== undefined && prev !== cur) {
+        fieldRefs.current[f.id]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+        break;
+      }
+    }
+    const snapshot: Record<string, string> = {};
+    for (const f of modal.fields) snapshot[f.id] = f.value ?? '';
+    lastValuesRef.current = snapshot;
+  }, [modal]);
 
   if (!modal) return null;
 
@@ -98,7 +123,13 @@ export function BizFormModal({ roomId }: BizFormModalProps) {
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3 scrollbar-thin">
           <ul className="space-y-3">
             {modal.fields.map((f) => (
-              <li key={f.id}>
+              <li
+                key={f.id}
+                ref={(el) => {
+                  fieldRefs.current[f.id] = el;
+                }}
+                className="scroll-mt-2"
+              >
                 <label className="mb-1 block text-[11px] font-medium text-ink-secondary">
                   {f.label}
                 </label>
