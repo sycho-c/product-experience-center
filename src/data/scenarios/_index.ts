@@ -1,6 +1,6 @@
 import type { Scenario, ScenarioMeta } from '@/types/scenario';
 import { meta as basicMeta } from './basic-room-creation.meta';
-import { meta as hanaMeta } from './hana-contract.meta';
+import { meta as hanaInsuranceMeta } from './hana-insurance-collab.meta';
 import { meta as wooriMeta } from './woori-credit.meta';
 import { meta as messagingMeta } from './messaging-basics.meta';
 import { meta as workspaceMeta } from './workspace-admin.meta';
@@ -18,7 +18,7 @@ const lazy =
 
 export const scenarioRegistry: ScenarioRegistryEntry[] = [
   { ...basicMeta, load: lazy(() => import('./basic-room-creation')) },
-  { ...hanaMeta, load: lazy(() => import('./hana-contract')) },
+  { ...hanaInsuranceMeta, load: lazy(() => import('./hana-insurance-collab')) },
   { ...wooriMeta, load: lazy(() => import('./woori-credit')) },
   { ...messagingMeta, load: lazy(() => import('./messaging-basics')) },
   { ...workspaceMeta, load: lazy(() => import('./workspace-admin')) },
