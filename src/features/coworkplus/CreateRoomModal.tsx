@@ -41,6 +41,7 @@ export function CreateRoomModal() {
 
   const step = modal.step ?? 1;
   const tab = (modal.tab ?? 'internal') as 'internal' | 'external';
+  const internalSearch = inputs['create-room.internal.search'] ?? '';
   const externalSearch = inputs['create-room.external.search'] ?? '';
   const roomTitle = inputs['create-room.title'] ?? '';
   const kakaoOn = !!checks['create-room.kakao'];
@@ -49,7 +50,7 @@ export function CreateRoomModal() {
   const onTabClick = (next: 'internal' | 'external') =>
     setModal(MODAL_ID, { tab: next });
   const onSearchChange = (v: string) =>
-    setInput('create-room.external.search', v);
+    setInput(`create-room.${tab}.search`, v);
   const onTitleChange = (v: string) => setInput('create-room.title', v);
   const onToggleKakao = () => setCheck('create-room.kakao', !kakaoOn);
   const onCheckUser = (kind: 'internal' | 'external', id: string) => {
@@ -67,8 +68,8 @@ export function CreateRoomModal() {
     });
 
   return (
-    <div className="absolute inset-0 z-40 flex bg-black/30 p-3 backdrop-blur-sm">
-      <div className="m-auto flex h-full max-h-[min(640px,100%)] w-full max-w-[min(880px,100%)] flex-col overflow-hidden rounded-xl bg-surface-card shadow-elev">
+    <div className="absolute inset-0 z-40 flex bg-black/30 p-6 backdrop-blur-sm">
+      <div className="m-auto flex h-full max-h-[min(540px,100%)] w-full max-w-[min(720px,100%)] flex-col overflow-hidden rounded-xl bg-surface-card shadow-elev">
         {/* Header */}
         <header className="flex shrink-0 items-center justify-between border-b border-surface-border px-4 py-3">
           <h2 className="text-sm font-semibold text-ink-primary">
@@ -93,6 +94,7 @@ export function CreateRoomModal() {
         {step === 1 ? (
           <Step1
             tab={tab}
+            internalSearch={internalSearch}
             externalSearch={externalSearch}
             checks={checks}
             onTabClick={onTabClick}
@@ -152,6 +154,7 @@ function StepBadge({
 
 interface Step1Props {
   tab: 'internal' | 'external';
+  internalSearch: string;
   externalSearch: string;
   checks: Record<string, boolean>;
   onTabClick: (next: 'internal' | 'external') => void;
@@ -162,6 +165,7 @@ interface Step1Props {
 
 function Step1({
   tab,
+  internalSearch,
   externalSearch,
   checks,
   onTabClick,
@@ -169,8 +173,18 @@ function Step1({
   onCheckUser,
   onNext,
 }: Step1Props) {
+  const search = tab === 'internal' ? internalSearch : externalSearch;
+  const filteredInternal = internalSearch
+    ? INTERNAL_USERS.filter(
+        (u) =>
+          u.name.includes(internalSearch) ||
+          u.login.toLowerCase().includes(internalSearch.toLowerCase())
+      )
+    : INTERNAL_USERS;
   const filteredExternal = externalSearch
-    ? EXTERNAL_USERS.filter((u) => u.name.includes(externalSearch))
+    ? EXTERNAL_USERS.filter(
+        (u) => u.name.includes(externalSearch) || u.phone.includes(externalSearch)
+      )
     : EXTERNAL_USERS;
   const selectedExternal = EXTERNAL_USERS.filter(
     (u) => checks[`create-room.external.${u.id}`]
@@ -203,11 +217,13 @@ function Step1({
           <div className="relative shrink-0">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted" />
             <input
-              value={tab === 'external' ? externalSearch : ''}
-              onChange={(e) =>
-                tab === 'external' && onSearchChange(e.target.value)
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder={
+                tab === 'external'
+                  ? '이름 또는 전화번호로 검색'
+                  : '이름 또는 아이디로 검색'
               }
-              placeholder={tab === 'external' ? '이름 또는 전화번호로 검색' : ''}
               className="h-8 w-full rounded-md border border-brand-primary/40 bg-surface-card pl-8 pr-3 text-xs focus:outline-none"
             />
           </div>
@@ -231,8 +247,13 @@ function Step1({
               )}
             </ul>
             <ul className="space-y-0.5 overflow-y-auto pr-1 text-xs scrollbar-thin">
-              {tab === 'internal'
-                ? INTERNAL_USERS.map((u) => (
+              {tab === 'internal' ? (
+                filteredInternal.length === 0 ? (
+                  <li className="px-2 py-1.5 text-xs text-ink-muted">
+                    검색 결과가 없습니다.
+                  </li>
+                ) : (
+                  filteredInternal.map((u) => (
                     <UserRow
                       key={u.id}
                       checked={!!checks[`create-room.internal.${u.id}`]}
@@ -240,21 +261,22 @@ function Step1({
                       onToggle={() => onCheckUser('internal', u.id)}
                     />
                   ))
-                : filteredExternal.length === 0 ? (
-                    <li className="px-2 py-1.5 text-xs text-ink-muted">
-                      검색 결과가 없습니다.
-                    </li>
-                  ) : (
-                    filteredExternal.map((u) => (
-                      <UserRow
-                        key={u.id}
-                        checked={!!checks[`create-room.external.${u.id}`]}
-                        label={`${u.name} (${u.phone})`}
-                        emphasized={!!checks[`create-room.external.${u.id}`]}
-                        onToggle={() => onCheckUser('external', u.id)}
-                      />
-                    ))
-                  )}
+                )
+              ) : filteredExternal.length === 0 ? (
+                <li className="px-2 py-1.5 text-xs text-ink-muted">
+                  검색 결과가 없습니다.
+                </li>
+              ) : (
+                filteredExternal.map((u) => (
+                  <UserRow
+                    key={u.id}
+                    checked={!!checks[`create-room.external.${u.id}`]}
+                    label={`${u.name} (${u.phone})`}
+                    emphasized={!!checks[`create-room.external.${u.id}`]}
+                    onToggle={() => onCheckUser('external', u.id)}
+                  />
+                ))
+              )}
             </ul>
           </div>
         </div>
@@ -420,13 +442,11 @@ function Step2({
         </aside>
       </div>
 
-      <div className="flex items-center gap-3 border-t border-surface-border bg-surface-card px-4 py-3">
-        <Button variant="outline" className="basis-1/3" onClick={onPrev}>
+      <div className="grid grid-cols-2 items-center gap-3 border-t border-surface-border bg-surface-card px-4 py-3">
+        <Button variant="outline" onClick={onPrev}>
           이전
         </Button>
-        <Button className="basis-2/3" onClick={onCreate}>
-          대화방 생성
-        </Button>
+        <Button onClick={onCreate}>대화방 생성</Button>
       </div>
     </div>
   );
