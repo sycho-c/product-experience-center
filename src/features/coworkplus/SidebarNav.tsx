@@ -12,16 +12,20 @@ import { LogoMark } from '@/components/Logo';
 import { MockModal } from '@/components/MockModal';
 import { cn } from '@/lib/utils';
 
+export type SidebarSectionId = 'talk' | 'external';
+
 interface MenuItem {
   id: string;
   label: string;
   Icon: typeof MessageSquare;
-  /** 대화 외 메뉴는 mock 화면 노출 */
+  /** 본문 영역으로 전환되는 section. 지정 시 mock 대신 onSectionChange 가 호출됨. */
+  section?: SidebarSectionId;
+  /** section 이 없는 메뉴는 mock 화면 노출 */
   mock?: { title: string; description: string };
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { id: 'talk', label: '대화', Icon: MessageSquare },
+  { id: 'talk', label: '대화', Icon: MessageSquare, section: 'talk' },
   {
     id: 'talk-search',
     label: '대화 조회',
@@ -53,10 +57,7 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'external',
     label: '외부 사용자',
     Icon: Users2,
-    mock: {
-      title: '외부 사용자',
-      description: '거래처·고객사 외부 사용자 목록과 초대 이력을 관리합니다.',
-    },
+    section: 'external',
   },
   {
     id: 'settings',
@@ -72,17 +73,23 @@ const MENU_ITEMS: MenuItem[] = [
 interface SidebarNavProps {
   activeId?: string;
   userName?: string;
+  onSectionChange?: (section: SidebarSectionId) => void;
 }
 
 export function SidebarNav({
   activeId: activeIdProp = 'talk',
-  userName = '승열',
+  userName = '김도윤',
+  onSectionChange,
 }: SidebarNavProps) {
   const [activeId, setActiveId] = useState(activeIdProp);
   const [mock, setMock] = useState<MenuItem['mock'] | null>(null);
 
   const onSelect = (item: MenuItem) => {
     setActiveId(item.id);
+    if (item.section) {
+      onSectionChange?.(item.section);
+      return;
+    }
     if (item.mock) setMock(item.mock);
   };
 
@@ -160,6 +167,7 @@ export function SidebarNav({
         onClose={() => {
           setMock(null);
           setActiveId('talk');
+          onSectionChange?.('talk');
         }}
       />
     </aside>

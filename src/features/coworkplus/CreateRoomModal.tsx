@@ -1,34 +1,36 @@
 import { ChevronDown, Search, X } from 'lucide-react';
 import { useUISimStore } from '@/features/ui-simulation/store';
+import {
+  useExternalUsersStore,
+  type ExternalUser,
+} from '@/features/domain/external-users/store';
 import { progressOrDo } from '@/lib/use-scenario-match';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { INTERNAL_USERS } from './users-data';
 
 const MODAL_ID = 'create-room';
+const HOST_ID = 'host-kim-doyoon';
+const HOST_NAME = '김도윤';
 
-const INTERNAL_USERS = [
-  { id: 'jhkim', name: '김지현', login: 'jhkim' },
-  { id: 'mspark', name: '박민수', login: 'mspark' },
-  { id: 'sjlee', name: '이수진', login: 'sjlee' },
-  { id: 'dhjeong', name: '정도현', login: 'dhjeong' },
-  { id: 'syhan', name: '한세영', login: 'syhan' },
-  { id: 'wjchoi', name: '최우진', login: 'wjchoi' },
-  { id: 'syyoon', name: '윤서연', login: 'syyoon' },
-  { id: 'dykang', name: '강도윤', login: 'dykang' },
-];
+function nowStamp(): string {
+  const d = new Date();
+  const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+  const dd = d.getDate().toString().padStart(2, '0');
+  const hh = d.getHours().toString().padStart(2, '0');
+  const mi = d.getMinutes().toString().padStart(2, '0');
+  const ss = d.getSeconds().toString().padStart(2, '0');
+  return `${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
 
-const EXTERNAL_USERS = [
-  { id: 'hong-01012341234', name: '홍길동', phone: '01012341234' },
-  { id: 'kim-01023456789', name: '김서연', phone: '01023456789' },
-  { id: 'lee-01034567890', name: '이재훈', phone: '01034567890' },
-  { id: 'park-01045678901', name: '박지민', phone: '01045678901' },
-  { id: 'jung-01056789012', name: '정수아', phone: '01056789012' },
-  { id: 'choi-01067890123', name: '최도윤', phone: '01067890123' },
-  { id: 'han-01078901234', name: '한가람', phone: '01078901234' },
-  { id: 'yoon-01089012345', name: '윤하늘', phone: '01089012345' },
-  { id: 'lim-01090123456', name: '임지호', phone: '01090123456' },
-  { id: 'kim-5250223', name: '영업가족-김철수', phone: '(주)에즈금융서비스_TM / 5250223' },
-];
+function nowClock(): string {
+  const d = new Date();
+  const h = d.getHours();
+  const m = d.getMinutes().toString().padStart(2, '0');
+  const period = h >= 12 ? '오후' : '오전';
+  const hour12 = ((h + 11) % 12) + 1;
+  return `${period} ${hour12.toString().padStart(2, '0')}:${m}`;
+}
 
 export function CreateRoomModal() {
   const modal = useUISimStore((s) => s.modals[MODAL_ID]);
@@ -37,6 +39,13 @@ export function CreateRoomModal() {
   const setModal = useUISimStore((s) => s.setModal);
   const setInput = useUISimStore((s) => s.setInput);
   const setCheck = useUISimStore((s) => s.setCheck);
+  const addRoom = useUISimStore((s) => s.addRoom);
+  const addParticipant = useUISimStore((s) => s.addParticipant);
+  const selectRoom = useUISimStore((s) => s.selectRoom);
+  const pushMobileChat = useUISimStore((s) => s.pushMobileChat);
+  const pushMobileNotice = useUISimStore((s) => s.pushMobileNotice);
+  const setMobileViewer = useUISimStore((s) => s.setMobileViewer);
+  const externalUsers = useExternalUsersStore((s) => s.users);
 
   if (!modal?.open) return null;
 
@@ -62,10 +71,96 @@ export function CreateRoomModal() {
     progressOrDo(() => setModal(MODAL_ID, { step: 2 }));
   const onPrev = () =>
     progressOrDo(() => setModal(MODAL_ID, { step: 1 }));
+
+  const cleanupCreateRoomState = () => {
+    Object.keys(checks)
+      .filter((k) => k.startsWith('create-room.'))
+      .forEach((k) => setCheck(k, false));
+    setInput('create-room.title', '');
+    setInput('create-room.internal.search', '');
+    setInput('create-room.external.search', '');
+    setModal(MODAL_ID, { open: false, step: 1, tab: 'internal' });
+  };
+
   const onCreate = () =>
     progressOrDo(() => {
-      // 시나리오가 없는 자유 모드일 때 — 모달만 닫고 토스트 하나
-      setModal(MODAL_ID, { open: false });
+      const internalSel = INTERNAL_USERS.filter(
+        (u) => checks[`create-room.internal.${u.id}`]
+      );
+      const externalSel: ExternalUser[] = externalUsers.filter(
+        (u) => checks[`create-room.external.${u.id}`]
+      );
+
+      if (internalSel.length === 0 && externalSel.length === 0) {
+        cleanupCreateRoomState();
+        return;
+      }
+
+      const roomId = `free_room_${Date.now()}`;
+      const titleFinal =
+        roomTitle.trim() ||
+        [...internalSel, ...externalSel].map((u) => u.name).join(', ');
+
+      addRoom({
+        id: roomId,
+        title: titleFinal,
+        participantCount: 1 + internalSel.length + externalSel.length,
+        preview: '대화를 시작해보세요.',
+        device: 'PC',
+        timestamp: nowStamp(),
+      });
+
+      addParticipant(roomId, {
+        id: HOST_ID,
+        displayName: HOST_NAME,
+        external: false,
+        isHost: true,
+        device: 'PC',
+        online: true,
+      });
+      internalSel.forEach((u) =>
+        addParticipant(roomId, {
+          id: `internal-${u.id}`,
+          displayName: u.name,
+          external: false,
+          device: 'PC',
+          online: false,
+        })
+      );
+      externalSel.forEach((u) =>
+        addParticipant(roomId, {
+          id: `external-${u.id}`,
+          displayName: u.name,
+          external: true,
+          device: 'Mobile',
+          online: false,
+        })
+      );
+
+      if (externalSel.length > 0) {
+        const noticeId = kakaoOn ? `notice-${roomId}` : undefined;
+        pushMobileChat({
+          roomId,
+          title: titleFinal,
+          lastMessage: '대화방에 초대되었습니다.',
+          unread: 1,
+          time: nowClock(),
+          kind: 'cowork-invite',
+          noticeId,
+        });
+        if (noticeId) {
+          pushMobileNotice({
+            id: noticeId,
+            title: '대화방 초대',
+            body: `${HOST_NAME}님이 '${titleFinal}' 에 초대했습니다.`,
+            ctaLabel: '입장',
+          });
+        }
+        setMobileViewer(`external-${externalSel[0].id}`);
+      }
+
+      selectRoom(roomId);
+      cleanupCreateRoomState();
     });
 
   return (
@@ -98,6 +193,7 @@ export function CreateRoomModal() {
             internalSearch={internalSearch}
             externalSearch={externalSearch}
             checks={checks}
+            externalUsers={externalUsers}
             onTabClick={onTabClick}
             onSearchChange={onSearchChange}
             onCheckUser={onCheckUser}
@@ -107,6 +203,7 @@ export function CreateRoomModal() {
           <Step2
             roomTitle={roomTitle}
             kakaoOn={kakaoOn}
+            externalUsers={externalUsers}
             onTitleChange={onTitleChange}
             onToggleKakao={onToggleKakao}
             onPrev={onPrev}
@@ -158,6 +255,7 @@ interface Step1Props {
   internalSearch: string;
   externalSearch: string;
   checks: Record<string, boolean>;
+  externalUsers: ExternalUser[];
   onTabClick: (next: 'internal' | 'external') => void;
   onSearchChange: (v: string) => void;
   onCheckUser: (kind: 'internal' | 'external', id: string) => void;
@@ -169,6 +267,7 @@ function Step1({
   internalSearch,
   externalSearch,
   checks,
+  externalUsers,
   onTabClick,
   onSearchChange,
   onCheckUser,
@@ -183,11 +282,11 @@ function Step1({
       )
     : INTERNAL_USERS;
   const filteredExternal = externalSearch
-    ? EXTERNAL_USERS.filter(
+    ? externalUsers.filter(
         (u) => u.name.includes(externalSearch) || u.phone.includes(externalSearch)
       )
-    : EXTERNAL_USERS;
-  const selectedExternal = EXTERNAL_USERS.filter(
+    : externalUsers;
+  const selectedExternal = externalUsers.filter(
     (u) => checks[`create-room.external.${u.id}`]
   );
   const selectedInternal = INTERNAL_USERS.filter(
@@ -330,6 +429,7 @@ function Step1({
 interface Step2Props {
   roomTitle: string;
   kakaoOn: boolean;
+  externalUsers: ExternalUser[];
   onTitleChange: (v: string) => void;
   onToggleKakao: () => void;
   onPrev: () => void;
@@ -339,6 +439,7 @@ interface Step2Props {
 function Step2({
   roomTitle,
   kakaoOn,
+  externalUsers,
   onTitleChange,
   onToggleKakao,
   onPrev,
@@ -348,7 +449,7 @@ function Step2({
   const selectedInternal = INTERNAL_USERS.filter(
     (u) => checks[`create-room.internal.${u.id}`]
   );
-  const selectedExternal = EXTERNAL_USERS.filter(
+  const selectedExternal = externalUsers.filter(
     (u) => checks[`create-room.external.${u.id}`]
   );
   return (

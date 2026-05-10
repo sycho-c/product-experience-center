@@ -21,14 +21,14 @@ import { progressOrDo } from '@/lib/use-scenario-match';
 import { MockModal } from '@/components/MockModal';
 import { TaskChip } from './TaskChip';
 import { MessageActionsMenu } from './MessageActionsMenu';
+import { InviteModal } from './InviteModal';
 import { cn } from '@/lib/utils';
 
-type HeaderMockKind = 'check' | 'notice' | 'invite' | 'leave' | 'collapse';
+type HeaderMockKind = 'check' | 'notice' | 'leave' | 'collapse';
 
 const HEADER_MOCK_TITLES: Record<HeaderMockKind, string> = {
   check: '읽음 확인',
   notice: '공지 등록',
-  invite: '대화방 초대',
   leave: '대화방 나가기',
   collapse: '대화방 접기',
 };
@@ -36,7 +36,6 @@ const HEADER_MOCK_TITLES: Record<HeaderMockKind, string> = {
 const HEADER_MOCK_DESCRIPTIONS: Record<HeaderMockKind, string> = {
   check: '대화방 참여자별 읽음 상태를 확인합니다.',
   notice: '대화방 상단에 고정될 공지를 작성합니다.',
-  invite: '대화방에 새로운 내부/외부 참여자를 초대합니다.',
   leave: '대화방에서 나갑니다. 호스트는 위임 후 나갈 수 있습니다.',
   collapse: '대화방 영역을 접어 목록만 표시합니다.',
 };
@@ -62,6 +61,7 @@ export function TalkRoomView({
   onToggleRightRail,
 }: TalkRoomViewProps) {
   const [headerMock, setHeaderMock] = useState<HeaderMockKind | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const legacyTimeline = useTalkStore((s) => s.timeline);
   const currentRoomId = useUISimStore((s) => s.currentRoomId);
   const room = useUISimStore((s) =>
@@ -167,7 +167,11 @@ export function TalkRoomView({
           <HeaderIconButton
             icon={<UserPlus2 className="h-4 w-4" />}
             label="초대"
-            onClick={() => setHeaderMock('invite')}
+            onClick={() =>
+              progressOrDo(() => {
+                if (currentRoomId) setInviteOpen(true);
+              })
+            }
           />
           <button
             type="button"
@@ -207,6 +211,13 @@ export function TalkRoomView({
         }
         onClose={() => setHeaderMock(null)}
       />
+
+      {inviteOpen && currentRoomId && (
+        <InviteModal
+          roomId={currentRoomId}
+          onClose={() => setInviteOpen(false)}
+        />
+      )}
 
       {/* Timeline */}
       <div
@@ -402,7 +413,7 @@ function TalkBubble({ talk, skin }: TalkBubbleProps) {
     : null;
 
   const bubbleBase =
-    'rounded-xl px-3 py-2 text-xs leading-relaxed break-words';
+    'rounded-xl px-3 py-2 text-xs leading-relaxed break-words [overflow-wrap:anywhere]';
   // navy 톤 (비밀 메시지) — 호스트/상대 모두 동일하게 진한 네이비 표시.
   const navyStyles = 'bg-brand-sidebar text-white';
   const meStyles = isKakao
@@ -462,22 +473,24 @@ function TalkBubble({ talk, skin }: TalkBubbleProps) {
             보임
           </span>
         )}
-        <div className="relative">
-          <div className={cn(bubbleBase, isMe ? meStyles : otherStyles)}>
-            {talk.content}
+        <div className="flex w-full min-w-0 items-end gap-1.5">
+          {isMe && (
+            <span className="shrink-0 text-[10px] text-ink-muted">{time}</span>
+          )}
+          <div className="relative min-w-0">
+            <div className={cn(bubbleBase, isMe ? meStyles : otherStyles)}>
+              {talk.content}
+            </div>
+            {!isKakao && <MessageActionsMenu talk={talk} isMe={isMe} />}
           </div>
-          {!isKakao && (
-            <MessageActionsMenu
-              talk={talk}
-              isMe={isMe}
-            />
+          {!isMe && (
+            <span className="shrink-0 text-[10px] text-ink-muted">{time}</span>
           )}
         </div>
         {talk.taskChip && (
           <TaskChip chip={talk.taskChip} onToggle={onToggleChip} />
         )}
         {!isKakao && <TalkInlineCards talk={talk} isMe={isMe} />}
-        <span className="text-[10px] text-ink-muted">{time}</span>
       </div>
     </div>
   );

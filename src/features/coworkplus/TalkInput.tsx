@@ -161,7 +161,7 @@ export function TalkInput() {
         id: genTalkId(),
         stepId: 'user',
         type: 'message',
-        from: { role: 'me', displayName: '나' },
+        from: { role: 'me', userId: 'host-kim-doyoon', displayName: '나' },
         to: { broadcast: true },
         device: 'all',
         content: trimmed,

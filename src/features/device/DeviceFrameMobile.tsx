@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Check,
   ChevronDown,
   ChevronLeft,
   LayoutGrid,
@@ -12,7 +13,6 @@ import { FileExtBadge } from '@/features/talk/FileExtBadge';
 import { useTalkStore } from '@/features/talk/store';
 import { useUISimStore } from '@/features/ui-simulation/store';
 import { MobileMessageInput } from '@/features/coworkplus/MessageInput';
-import { MobileViewerSwitcher } from '@/features/coworkplus/MobileViewerSwitcher';
 import { MobileMenuDropdown } from '@/features/coworkplus/MobileMenuDropdown';
 import { BizFormModal } from '@/features/coworkplus/BizFormModal';
 import { MockModal } from '@/components/MockModal';
@@ -66,12 +66,13 @@ export function DeviceFrameMobile({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      {/* Label chip */}
-      <div className="flex shrink-0 justify-center pb-1.5">
+      {/* Label chip + Guest viewer selector */}
+      <div className="flex shrink-0 items-center justify-center gap-1.5 pb-1.5">
         <span className="inline-flex items-center gap-1 rounded-full bg-surface-card px-2.5 py-0.5 text-[11px] font-medium text-ink-secondary shadow-soft">
           <Smartphone className="h-3 w-3" />
           {displayLabel}
         </span>
+        {!isKakao && <GuestViewerChip activeRoomId={mobileRoomId} />}
       </div>
 
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden py-1">
@@ -270,7 +271,6 @@ function ChatRoomScreen({
   const viewerParticipant =
     externals.find((p) => p.id === viewerId) ?? externals[0] ?? null;
   const viewerSenderRole = viewerParticipant ? 'customer' : 'customer';
-  const isGroup = externals.length > 1;
 
   const bodyRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -300,7 +300,6 @@ function ChatRoomScreen({
               ({participantCount})
             </span>
           </span>
-          {isGroup && !isKakao && <MobileViewerSwitcher roomId={roomId} />}
         </div>
         <button
           type="button"
@@ -433,7 +432,7 @@ function MobileBubble({
   ) : (
     <div
       className={cn(
-        'rounded-2xl px-3 py-1.5 text-xs leading-relaxed',
+        'min-w-0 rounded-2xl px-3 py-1.5 text-xs leading-relaxed break-words [overflow-wrap:anywhere]',
         isMe ? meStyles : otherStyles
       )}
     >
@@ -473,15 +472,26 @@ function MobileBubble({
             {senderName}
           </span>
         )}
-        {bubble}
+        {showPlaceholder ? (
+          bubble
+        ) : (
+          <div className="flex w-full min-w-0 items-end gap-1">
+            {isMe && (
+              <span className="shrink-0 text-[10px] text-ink-muted">
+                {formatClock()}
+              </span>
+            )}
+            {bubble}
+            {!isMe && (
+              <span className="shrink-0 text-[10px] text-ink-muted">
+                {formatClock()}
+              </span>
+            )}
+          </div>
+        )}
         {!showPlaceholder && talk.attachments?.map((att, i) => (
           <MobileAttachmentCard key={`${talk.id}-att-${i}`} att={att} isMe={isMe} />
         ))}
-        {!showPlaceholder && (
-          <div className="text-[10px] text-ink-muted">
-            {formatClock()}
-          </div>
-        )}
         {talk.taskChip && !showPlaceholder && (
           <span
             className={cn(
@@ -589,4 +599,81 @@ function getAvatarLabel(name?: string): string {
   const trimmed = name?.trim();
   if (!trimmed) return '?';
   return trimmed.slice(-2);
+}
+
+interface GuestViewerChipProps {
+  activeRoomId: string | null;
+}
+
+function GuestViewerChip({ activeRoomId }: GuestViewerChipProps) {
+  const chatList = useUISimStore((s) => s.mobileChatList);
+  const participantsMap = useUISimStore((s) => s.participants);
+  const viewerId = useUISimStore((s) => s.mobileViewerParticipantId);
+  const setMobileViewer = useUISimStore((s) => s.setMobileViewer);
+  const [open, setOpen] = useState(false);
+
+  // 가장 최근 활성 방 — 진입한 방 우선, 없으면 가장 위에 보이는 채팅 카드
+  const targetRoomId = activeRoomId ?? chatList[0]?.roomId ?? null;
+  const externals = useMemo(() => {
+    if (!targetRoomId) return [];
+    return (participantsMap[targetRoomId] ?? []).filter((p) => p.external);
+  }, [targetRoomId, participantsMap]);
+
+  if (externals.length === 0) return null;
+
+  if (externals.length === 1) {
+    const only = externals[0];
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-brand-primarySoft/70 px-2 py-0.5 text-[11px] font-medium text-brand-primary shadow-soft">
+        {only.displayName}
+      </span>
+    );
+  }
+
+  const current =
+    externals.find((p) => p.id === viewerId) ?? externals[0];
+
+  const onPick = (id: string) => {
+    setMobileViewer(id);
+    setOpen(false);
+  };
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-1 rounded-full bg-brand-primarySoft/70 px-2 py-0.5 text-[11px] font-medium text-brand-primary shadow-soft hover:bg-brand-primarySoft"
+      >
+        {current.displayName}
+        <ChevronDown className="h-3 w-3" />
+      </button>
+      {open && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setOpen(false)}
+            role="presentation"
+          />
+          <ul className="absolute right-0 top-[calc(100%+4px)] z-20 min-w-[140px] rounded-md border border-surface-border bg-surface-card py-1 text-xs shadow-elev">
+            {externals.map((p) => (
+              <li key={p.id}>
+                <button
+                  type="button"
+                  onClick={() => onPick(p.id)}
+                  className={cn(
+                    'flex w-full items-center justify-between gap-2 px-2.5 py-1.5 text-left hover:bg-surface-subtle',
+                    p.id === current.id && 'text-brand-primary'
+                  )}
+                >
+                  <span className="truncate">{p.displayName}</span>
+                  {p.id === current.id && <Check className="h-3 w-3" />}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  );
 }

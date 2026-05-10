@@ -4,6 +4,8 @@ import { DeviceFramePC } from '@/features/device/DeviceFramePC';
 import { DeviceFrameMobile } from '@/features/device/DeviceFrameMobile';
 import { stop } from '@/features/scenario/runner';
 import { useScenarioStore } from '@/features/scenario/store';
+import { useUISimStore } from '@/features/ui-simulation/store';
+import { useExternalUsersStore } from '@/features/domain/external-users/store';
 
 export function PlaygroundRoute() {
   useEffect(() => {
@@ -14,6 +16,8 @@ export function PlaygroundRoute() {
   const handleResetAll = () => {
     stop();
     useScenarioStore.getState().reset();
+    useUISimStore.getState().reset();
+    useExternalUsersStore.getState().reset();
   };
 
   return (
