@@ -1,23 +1,30 @@
 import { useState } from 'react';
 import {
-  Book,
+  BookText,
   ChevronsLeft,
-  CheckSquare,
-  ListChecks,
-  MessageSquare,
+  ChevronsRight,
+  ClipboardCheck,
+  MessageCircle,
+  Search,
   Settings,
-  Users2,
+  Users,
 } from 'lucide-react';
 import { LogoMark } from '@/components/Logo';
 import { MockModal } from '@/components/MockModal';
 import { cn } from '@/lib/utils';
 
-export type SidebarSectionId = 'talk' | 'external';
+export type SidebarSectionId =
+  | 'talk'
+  | 'external'
+  | 'talk-search'
+  | 'todo'
+  | 'knowledge'
+  | 'settings';
 
 interface MenuItem {
   id: string;
   label: string;
-  Icon: typeof MessageSquare;
+  Icon: typeof MessageCircle;
   /** 본문 영역으로 전환되는 section. 지정 시 mock 대신 onSectionChange 가 호출됨. */
   section?: SidebarSectionId;
   /** section 이 없는 메뉴는 mock 화면 노출 */
@@ -25,48 +32,36 @@ interface MenuItem {
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { id: 'talk', label: '대화', Icon: MessageSquare, section: 'talk' },
+  { id: 'talk', label: '대화', Icon: MessageCircle, section: 'talk' },
   {
     id: 'talk-search',
     label: '대화 조회',
-    Icon: ListChecks,
-    mock: {
-      title: '대화 조회',
-      description: '내가 참여한 대화방의 메시지·첨부·할 일을 통합 검색합니다.',
-    },
+    Icon: Search,
+    section: 'talk-search',
   },
   {
     id: 'todo',
     label: '할 일',
-    Icon: CheckSquare,
-    mock: {
-      title: '할 일',
-      description: '나에게 할당된 할 일과 대화방 할 일을 한 번에 관리합니다.',
-    },
+    Icon: ClipboardCheck,
+    section: 'todo',
   },
   {
     id: 'knowledge',
     label: '지식',
-    Icon: Book,
-    mock: {
-      title: '지식',
-      description: '사내 지식·자주 쓰는 답변·매뉴얼을 검색·작성합니다.',
-    },
+    Icon: BookText,
+    section: 'knowledge',
   },
   {
     id: 'external',
     label: '외부 사용자',
-    Icon: Users2,
+    Icon: Users,
     section: 'external',
   },
   {
     id: 'settings',
     label: '설정',
     Icon: Settings,
-    mock: {
-      title: '설정',
-      description: '프로필·알림·디바이스 등 계정 설정을 변경합니다.',
-    },
+    section: 'settings',
   },
 ];
 
@@ -83,6 +78,7 @@ export function SidebarNav({
 }: SidebarNavProps) {
   const [activeId, setActiveId] = useState(activeIdProp);
   const [mock, setMock] = useState<MenuItem['mock'] | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
 
   const onSelect = (item: MenuItem) => {
     setActiveId(item.id);
@@ -93,29 +89,46 @@ export function SidebarNav({
     if (item.mock) setMock(item.mock);
   };
 
-  // 컨테이너 쿼리: 디바이스 컨테이너가 좁으면 아이콘 전용(56px) 모드.
-  // 넓으면 라벨 표시(176px).
+  // 컨테이너 쿼리(디바이스 컨테이너가 좁으면 아이콘 전용 모드) + collapsed state(사용자가 명시적으로 접기 토글).
+  // collapsed === true 면 컨테이너 폭 무시하고 항상 좁은 모드.
   return (
     <aside
       className={cn(
         'flex h-full shrink-0 flex-col bg-brand-sidebar text-brand-sidebarText',
-        'w-[56px]', // 기본(좁은 컨테이너)에서 아이콘 전용
-        '@[760px]/device:w-[176px]'
+        collapsed ? 'w-[64px]' : 'w-[56px] @[760px]/device:w-[176px]'
       )}
     >
       {/* Brand row */}
-      <div className="flex items-center justify-between gap-1 px-2 pt-3 @[760px]/device:px-4 @[760px]/device:pt-4">
+      <div
+        className={cn(
+          'flex items-center gap-1 px-2 pt-3',
+          collapsed
+            ? 'flex-col'
+            : 'justify-between @[760px]/device:px-4 @[760px]/device:pt-4'
+        )}
+      >
         <div className="flex items-center gap-2">
           <LogoMark className="h-6 w-6" />
-          <span className="hidden text-base font-semibold tracking-tight text-white @[760px]/device:inline">
-            Cowork<span className="text-brand-accent">+</span>
-          </span>
+          {!collapsed && (
+            <span className="hidden text-base font-semibold tracking-tight text-white @[760px]/device:inline">
+              Cowork+
+            </span>
+          )}
         </div>
         <button
-          aria-label="사이드바 접기"
-          className="hidden h-7 w-7 place-items-center rounded text-brand-sidebarText/70 hover:bg-brand-sidebarHover @[760px]/device:grid"
+          type="button"
+          onClick={() => setCollapsed((v) => !v)}
+          aria-label={collapsed ? '사이드바 펼치기' : '사이드바 접기'}
+          className={cn(
+            'grid h-7 w-7 place-items-center rounded text-brand-sidebarText/70 hover:bg-brand-sidebarHover',
+            collapsed ? 'mt-2' : 'hidden @[760px]/device:grid'
+          )}
         >
-          <ChevronsLeft className="h-4 w-4" />
+          {collapsed ? (
+            <ChevronsRight className="h-4 w-4" />
+          ) : (
+            <ChevronsLeft className="h-4 w-4" />
+          )}
         </button>
       </div>
 
@@ -132,15 +145,23 @@ export function SidebarNav({
                   title={label}
                   onClick={() => onSelect(item)}
                   className={cn(
-                    'flex w-full items-center justify-center rounded-md px-2 py-2 text-sm transition-colors',
-                    '@[760px]/device:justify-start @[760px]/device:gap-3 @[760px]/device:px-3',
+                    'flex w-full flex-col items-center justify-center gap-1 rounded-md px-1 py-2 text-[10px] leading-tight transition-colors',
+                    !collapsed &&
+                      '@[760px]/device:flex-row @[760px]/device:justify-start @[760px]/device:gap-3 @[760px]/device:px-3 @[760px]/device:py-2 @[760px]/device:text-sm',
                     active
                       ? 'bg-brand-sidebarActive text-brand-sidebarTextActive'
                       : 'hover:bg-brand-sidebarHover'
                   )}
                 >
                   <Icon className="h-[18px] w-[18px] shrink-0" />
-                  <span className="hidden @[760px]/device:inline">{label}</span>
+                  <span
+                    className={cn(
+                      'text-center',
+                      !collapsed && '@[760px]/device:text-left'
+                    )}
+                  >
+                    {label}
+                  </span>
                 </button>
               </li>
             );
@@ -149,12 +170,28 @@ export function SidebarNav({
       </nav>
 
       {/* User */}
-      <div className="px-2 pb-3 @[760px]/device:px-4 @[760px]/device:pb-4">
-        <div className="flex items-center justify-center gap-2 @[760px]/device:justify-start">
+      <div
+        className={cn(
+          'px-2 pb-3',
+          !collapsed && '@[760px]/device:px-4 @[760px]/device:pb-4'
+        )}
+      >
+        <div
+          className={cn(
+            'flex flex-col items-center justify-center gap-1',
+            !collapsed &&
+              '@[760px]/device:flex-row @[760px]/device:justify-start @[760px]/device:gap-2'
+          )}
+        >
           <div className="grid h-7 w-7 place-items-center rounded-full bg-white/90 text-xs font-semibold text-brand-sidebar">
             {userName.charAt(0)}
           </div>
-          <span className="hidden text-xs text-brand-sidebarText/80 @[760px]/device:inline">
+          <span
+            className={cn(
+              'text-[10px] text-brand-sidebarText/80',
+              !collapsed && '@[760px]/device:text-xs'
+            )}
+          >
             {userName}
           </span>
         </div>

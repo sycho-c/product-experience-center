@@ -6,6 +6,9 @@ import { stop } from '@/features/scenario/runner';
 import { useScenarioStore } from '@/features/scenario/store';
 import { useUISimStore } from '@/features/ui-simulation/store';
 import { useExternalUsersStore } from '@/features/domain/external-users/store';
+import { useTodosStore } from '@/features/domain/todos/store';
+import { useKnowledgeBaseStore } from '@/features/domain/knowledge-base/store';
+import { useSettingsStore } from '@/features/domain/settings/store';
 
 export function PlaygroundRoute() {
   useEffect(() => {
@@ -18,6 +21,9 @@ export function PlaygroundRoute() {
     useScenarioStore.getState().reset();
     useUISimStore.getState().reset();
     useExternalUsersStore.getState().reset();
+    useTodosStore.getState().reset();
+    useKnowledgeBaseStore.getState().reset();
+    useSettingsStore.getState().reset();
   };
 
   return (

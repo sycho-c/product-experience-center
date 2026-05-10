@@ -437,7 +437,7 @@ function MobileBubble({
       )}
     >
       {isSecret && (
-        <div className="mb-0.5 inline-flex items-center gap-1 text-[10px] font-medium text-white/80">
+        <div className="mb-1 flex items-center gap-1 text-[10px] font-medium text-white/80">
           <Lock className="h-2.5 w-2.5" />
           비밀 메시지
         </div>

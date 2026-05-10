@@ -106,14 +106,14 @@ export function ExternalUsersView() {
           </div>
 
           <div className="min-h-0 flex-1 overflow-auto scrollbar-thin">
-            <table className="w-full table-fixed text-left text-xs">
+            <table className="w-full min-w-[860px] table-fixed text-left text-xs">
               <colgroup>
-                <col className="w-[18%]" />
-                <col className="w-[20%]" />
-                <col className="w-[22%]" />
-                <col className="w-[14%]" />
-                <col className="w-[14%]" />
-                <col className="w-[12%]" />
+                <col className="w-[140px]" />
+                <col className="w-[140px]" />
+                <col className="w-[200px]" />
+                <col className="w-[140px]" />
+                <col className="w-[140px]" />
+                <col className="w-[100px]" />
               </colgroup>
               <thead className="sticky top-0 z-10 bg-surface-subtle/80 text-[11px] font-medium text-ink-secondary backdrop-blur">
                 <tr>
@@ -223,7 +223,11 @@ function UserRow({ user }: { user: ExternalUser }) {
 }
 
 function Td({ children }: { children: React.ReactNode }) {
-  return <td className="px-3 py-2.5 align-middle">{children}</td>;
+  return (
+    <td className="overflow-hidden px-3 py-2.5 align-middle">
+      <div className="truncate whitespace-nowrap">{children}</div>
+    </td>
+  );
 }
 
 /**

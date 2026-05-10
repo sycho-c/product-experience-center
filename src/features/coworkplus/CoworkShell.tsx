@@ -8,6 +8,10 @@ import { CreateRoomModal } from './CreateRoomModal';
 import { TaskRegistrationModal } from './TaskRegistrationModal';
 import { ToastViewport } from './ToastViewport';
 import { ExternalUsersView } from './ExternalUsersView';
+import { TalkSearchView } from './TalkSearchView';
+import { TodoView } from './TodoView';
+import { KnowledgeView } from './KnowledgeView';
+import { SettingsView } from './SettingsView';
 import { useUISimStore } from '@/features/ui-simulation/store';
 import { progressOrDo } from '@/lib/use-scenario-match';
 
@@ -73,6 +77,14 @@ export function CoworkShell({
           </>
         ) : section === 'external' ? (
           <ExternalUsersView />
+        ) : section === 'talk-search' ? (
+          <TalkSearchView />
+        ) : section === 'todo' ? (
+          <TodoView />
+        ) : section === 'knowledge' ? (
+          <KnowledgeView />
+        ) : section === 'settings' ? (
+          <SettingsView />
         ) : null}
       </div>
 
