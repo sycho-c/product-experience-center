@@ -311,7 +311,7 @@ npm run build
 npm run dev
 ```
 
-브라우저에서 (`http://localhost:5173/product-experience-lab/#/scenarios/<id>/experience`):
+브라우저에서 (`http://localhost:5173/product-experience-center/#/scenarios/<id>/experience`):
 
 - [ ] 시나리오 진입 즉시 seed 가 반영된 상태 노출 (대화방·참여자·사전 메시지·viewer)
 - [ ] ▶ 자동 진행으로 모든 step 정상 통과 — 마지막 step 종료 시 `completed`

@@ -2,12 +2,12 @@
 
 ## Project Structure & Module Organization
 
-This is a Vite + React + TypeScript product experience simulator deployed under `/product-experience-lab/`. Source code lives in `src/`. Route screens are in `src/routes/`, layout shells in `src/layouts/`, reusable UI primitives in `src/components/`, and feature domains under `src/features/` such as `scenario`, `device`, `talk`, and `coworkplus`. Scenario fixtures are JSON files in `src/data/scenarios/` and are validated through schema utilities. Shared helpers belong in `src/lib/`, cross-feature types in `src/types/`, and static assets in `public/`.
+This is a Vite + React + TypeScript product experience simulator deployed under `/product-experience-center/`. Source code lives in `src/`. Route screens are in `src/routes/`, layout shells in `src/layouts/`, reusable UI primitives in `src/components/`, and feature domains under `src/features/` such as `scenario`, `device`, `talk`, and `coworkplus`. Scenario fixtures are JSON files in `src/data/scenarios/` and are validated through schema utilities. Shared helpers belong in `src/lib/`, cross-feature types in `src/types/`, and static assets in `public/`.
 
 ## Build, Test, and Development Commands
 
 - `npm install`: install dependencies from `package-lock.json`.
-- `npm run dev`: start the Vite dev server at `http://localhost:5173/product-experience-lab/`.
+- `npm run dev`: start the Vite dev server at `http://localhost:5173/product-experience-center/`.
 - `npm run typecheck`: run TypeScript project checks without emitting files.
 - `npm run build`: run `tsc -b` and produce the production bundle in `dist/`.
 - `npm run preview`: preview the built bundle locally.

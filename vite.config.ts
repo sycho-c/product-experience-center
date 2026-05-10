@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
 export default defineConfig({
-  base: '/product-experience-lab/',
+  base: '/product-experience-center/',
   plugins: [react()],
   resolve: {
     alias: {
