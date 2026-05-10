@@ -2,8 +2,6 @@ import type { Scenario, ScenarioMeta } from '@/types/scenario';
 import { meta as basicMeta } from './basic-room-creation.meta';
 import { meta as hanaInsuranceMeta } from './hana-insurance-collab.meta';
 import { meta as wooriMeta } from './woori-credit.meta';
-import { meta as messagingMeta } from './messaging-basics.meta';
-import { meta as workspaceMeta } from './workspace-admin.meta';
 import { meta as aiMeta } from './ai-smart-assist.meta';
 import { meta as nextGenMeta } from './next-gen-comm.meta';
 
@@ -20,8 +18,6 @@ export const scenarioRegistry: ScenarioRegistryEntry[] = [
   { ...basicMeta, load: lazy(() => import('./basic-room-creation')) },
   { ...hanaInsuranceMeta, load: lazy(() => import('./hana-insurance-collab')) },
   { ...wooriMeta, load: lazy(() => import('./woori-credit')) },
-  { ...messagingMeta, load: lazy(() => import('./messaging-basics')) },
-  { ...workspaceMeta, load: lazy(() => import('./workspace-admin')) },
   { ...aiMeta, load: lazy(() => import('./ai-smart-assist')) },
   { ...nextGenMeta, load: lazy(() => import('./next-gen-comm')) },
 ];
