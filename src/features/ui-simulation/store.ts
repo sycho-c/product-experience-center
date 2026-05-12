@@ -111,6 +111,8 @@ export interface UISimState {
   activeSection: string | null;
   /** 대화 조회 메뉴 검색 상태 — TalkSearchView 가 sync */
   talkSearch: TalkSearchState;
+  /** click_button 액션이 시연 중 대상 버튼을 잠깐 강조하기 위한 id. 380ms 후 null. */
+  pendingButtonId: string | null;
 }
 
 interface UISimActions {
@@ -148,6 +150,7 @@ interface UISimActions {
   toggleMessageSelect: (messageId: string, on?: boolean) => void;
   setActiveSection: (section: string | null) => void;
   setTalkSearch: (patch: Partial<TalkSearchState>) => void;
+  setPendingButton: (buttonId: string | null) => void;
 }
 
 const EMPTY_STATE: UISimState = {
@@ -171,6 +174,7 @@ const EMPTY_STATE: UISimState = {
   multiSelect: null,
   activeSection: null,
   talkSearch: { ...EMPTY_TALK_SEARCH },
+  pendingButtonId: null,
 };
 
 export const useUISimStore = create<UISimState & UISimActions>()(
@@ -192,6 +196,7 @@ export const useUISimStore = create<UISimState & UISimActions>()(
         multiSelect: null,
         activeSection: null,
         talkSearch: { ...EMPTY_TALK_SEARCH },
+        pendingButtonId: null,
       })),
     applySeed: (seed) =>
       set((s) => {
@@ -223,6 +228,7 @@ export const useUISimStore = create<UISimState & UISimActions>()(
         s.multiSelect = null;
         s.activeSection = null;
         s.talkSearch = { ...EMPTY_TALK_SEARCH };
+        s.pendingButtonId = null;
       }),
     setOcrStatus: (modalId, status) =>
       set((s) => {
@@ -380,6 +386,10 @@ export const useUISimStore = create<UISimState & UISimActions>()(
     setTalkSearch: (patch) =>
       set((s) => {
         s.talkSearch = { ...s.talkSearch, ...patch };
+      }),
+    setPendingButton: (buttonId) =>
+      set((s) => {
+        s.pendingButtonId = buttonId;
       }),
   }))
 );

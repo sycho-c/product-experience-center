@@ -7,6 +7,7 @@ import {
 import { progressOrDo } from '@/lib/use-scenario-match';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { usePendingButton } from '@/lib/use-pending-button';
 import { INTERNAL_USERS } from './users-data';
 
 const MODAL_ID = 'create-room';
@@ -187,6 +188,7 @@ export function CreateRoomModal() {
           <StepBadge active={step === 2} done={false} index={2} label="대화 채널 선택" />
         </div>
 
+        <div key={step} className="flex min-h-0 flex-1 animate-fade-in flex-col">
         {step === 1 ? (
           <Step1
             tab={tab}
@@ -210,6 +212,7 @@ export function CreateRoomModal() {
             onCreate={onCreate}
           />
         )}
+        </div>
       </div>
     </div>
   );
@@ -292,6 +295,7 @@ function Step1({
   const selectedInternal = INTERNAL_USERS.filter(
     (u) => checks[`create-room.internal.${u.id}`]
   );
+  const pendingNext = usePendingButton('create-room.next');
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -418,7 +422,11 @@ function Step1({
 
       {/* Footer */}
       <div className="border-t border-surface-border bg-surface-card px-4 py-3">
-        <Button className="w-full" onClick={onNext}>
+        <Button
+          className={cn('w-full', pendingNext)}
+          data-button-id="create-room.next"
+          onClick={onNext}
+        >
           다음
         </Button>
       </div>
@@ -452,6 +460,8 @@ function Step2({
   const selectedExternal = externalUsers.filter(
     (u) => checks[`create-room.external.${u.id}`]
   );
+  const pendingCreate = usePendingButton('create-room.create');
+  const pendingPrev = usePendingButton('create-room.prev');
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="grid min-h-0 flex-1 grid-cols-[1fr_240px]">
@@ -545,10 +555,21 @@ function Step2({
       </div>
 
       <div className="grid grid-cols-2 items-center gap-3 border-t border-surface-border bg-surface-card px-4 py-3">
-        <Button variant="outline" onClick={onPrev}>
+        <Button
+          variant="outline"
+          className={pendingPrev}
+          data-button-id="create-room.prev"
+          onClick={onPrev}
+        >
           이전
         </Button>
-        <Button onClick={onCreate}>대화방 생성</Button>
+        <Button
+          className={pendingCreate}
+          data-button-id="create-room.create"
+          onClick={onCreate}
+        >
+          대화방 생성
+        </Button>
       </div>
     </div>
   );

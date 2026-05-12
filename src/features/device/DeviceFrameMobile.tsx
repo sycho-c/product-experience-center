@@ -94,23 +94,30 @@ export function DeviceFrameMobile({
 
           {isKakao ? (
             <KakaoMobileShell activeRoomId={activeRoomId} />
-          ) : showRoom ? (
-            <ChatRoomScreen
-              roomTitle={room?.title ?? '대화'}
-              participantCount={room?.participantCount ?? 1}
-              talks={roomTalks}
-              roomId={activeRoomId!}
-              onBack={() => setMobileRoom(null)}
-              isKakao={isKakao}
-            />
           ) : (
-            <ChatListScreen
-              chatList={chatList}
-              onTap={onTapChat}
-              fallbackMessages={legacyTimeline}
-              emptyState={emptyState}
-              isKakao={isKakao}
-            />
+            <div
+              key={showRoom ? activeRoomId : 'list'}
+              className="flex min-h-0 flex-1 animate-slide-in-right flex-col"
+            >
+              {showRoom ? (
+                <ChatRoomScreen
+                  roomTitle={room?.title ?? '대화'}
+                  participantCount={room?.participantCount ?? 1}
+                  talks={roomTalks}
+                  roomId={activeRoomId!}
+                  onBack={() => setMobileRoom(null)}
+                  isKakao={isKakao}
+                />
+              ) : (
+                <ChatListScreen
+                  chatList={chatList}
+                  onTap={onTapChat}
+                  fallbackMessages={legacyTimeline}
+                  emptyState={emptyState}
+                  isKakao={isKakao}
+                />
+              )}
+            </div>
           )}
 
           {/* Mobile BizForm modal — Cowork+ 모드만 */}

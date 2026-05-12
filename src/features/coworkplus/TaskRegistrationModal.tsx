@@ -3,6 +3,7 @@ import { Loader2, Maximize2, X, ImageIcon } from 'lucide-react';
 import { useUISimStore } from '@/features/ui-simulation/store';
 import { progressOrDo } from '@/lib/use-scenario-match';
 import { cn } from '@/lib/utils';
+import { usePendingButton } from '@/lib/use-pending-button';
 
 const MODAL_ID = 'task-registration';
 
@@ -93,6 +94,15 @@ export function TaskRegistrationModal() {
 
   const extracting = ocrStatus === 'extracting';
   const completed = ocrStatus === 'completed';
+
+  const pendingSave = usePendingButton('task-registration.save');
+  const pendingRegisterCustomer = usePendingButton(
+    'task-registration.register-customer'
+  );
+  const pendingConsentRequest = usePendingButton(
+    'task-registration.consent-request'
+  );
+  const pendingLongDesign = usePendingButton('task-registration.long-design');
 
   return (
     <div className="absolute inset-0 z-40 flex animate-backdrop-fade bg-black/30 p-6 backdrop-blur-sm">
@@ -337,21 +347,33 @@ export function TaskRegistrationModal() {
                     <button
                       type="button"
                       onClick={() => progressOrDo(() => close())}
-                      className="rounded-md border border-brand-primary/40 bg-white px-3 py-1.5 text-[11px] font-medium text-brand-primary hover:bg-brand-primarySoft"
+                      data-button-id="task-registration.consent-request"
+                      className={cn(
+                        'rounded-md border border-brand-primary/40 bg-white px-3 py-1.5 text-[11px] font-medium text-brand-primary hover:bg-brand-primarySoft',
+                        pendingConsentRequest
+                      )}
                     >
                       동의서 요청
                     </button>
                   )}
                   <button
                     type="button"
-                    className="rounded-md bg-rose-500 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-rose-600"
+                    data-button-id="task-registration.register-customer"
+                    className={cn(
+                      'rounded-md bg-rose-500 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-rose-600',
+                      pendingRegisterCustomer
+                    )}
                   >
                     고객 등록
                   </button>
                   <button
                     type="button"
+                    data-button-id="task-registration.long-design"
                     disabled={v('consentStatus') !== 'completed'}
-                    className="rounded-md bg-brand-primary px-3 py-1.5 text-[11px] font-medium text-white hover:bg-brand-primaryHover disabled:cursor-not-allowed disabled:bg-ink-muted"
+                    className={cn(
+                      'rounded-md bg-brand-primary px-3 py-1.5 text-[11px] font-medium text-white hover:bg-brand-primaryHover disabled:cursor-not-allowed disabled:bg-ink-muted',
+                      pendingLongDesign
+                    )}
                     title={
                       v('consentStatus') !== 'completed'
                         ? '가입설계동의서 등록 후 활성화됩니다.'
@@ -385,8 +407,12 @@ export function TaskRegistrationModal() {
               </button>
               <button
                 type="button"
+                data-button-id="task-registration.save"
                 onClick={onSave}
-                className="rounded-md bg-brand-primary px-6 py-1.5 text-xs font-medium text-white hover:bg-brand-primaryHover"
+                className={cn(
+                  'rounded-md bg-brand-primary px-6 py-1.5 text-xs font-medium text-white hover:bg-brand-primaryHover',
+                  pendingSave
+                )}
               >
                 저장
               </button>

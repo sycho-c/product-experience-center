@@ -45,9 +45,17 @@ export function applyUIAction(action: UIAction): void {
     case 'toggle_check':
       s.setCheck(action.itemId, action.on);
       break;
-    case 'click_button':
-      // click_button 자체는 UI 상태 변화가 없음. description 자막 + highlight 의미.
+    case 'click_button': {
+      // 자동 시연 시 대상 버튼을 잠깐 펄스로 강조 (380ms).
+      s.setPendingButton(action.buttonId);
+      const targetId = action.buttonId;
+      setTimeout(() => {
+        if (useUISimStore.getState().pendingButtonId === targetId) {
+          useUISimStore.getState().setPendingButton(null);
+        }
+      }, 380);
       break;
+    }
     case 'show_toast':
       s.pushToast({
         id: `toast_${Date.now()}`,

@@ -52,6 +52,10 @@ export function CoworkShell({
 
       {/* Center column: header + list + view */}
       <div className="flex h-full min-w-0 flex-1 flex-col">
+        <div
+          key={section}
+          className="flex h-full min-h-0 flex-1 animate-fade-in flex-col"
+        >
         {section === 'talk' ? (
           <>
             <header className="flex h-14 items-center justify-between border-b border-surface-border bg-surface-card px-5">
@@ -90,6 +94,7 @@ export function CoworkShell({
         ) : section === 'settings' ? (
           <SettingsView />
         ) : null}
+        </div>
       </div>
 
       {/* Modal & Toast 뷰포트는 Cowork+ 셸 안에서 absolute */}

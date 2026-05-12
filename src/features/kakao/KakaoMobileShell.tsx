@@ -37,7 +37,10 @@ export function KakaoMobileShell({ activeRoomId }: KakaoMobileShellProps) {
   }, [talks.length, activeRoomId]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div
+      key={activeRoomId ?? 'empty'}
+      className="flex h-full min-h-0 animate-slide-in-right flex-col"
+    >
       {/* 카톡 헤더 */}
       <header className="flex shrink-0 items-center gap-2 bg-white px-3 py-2.5">
         <button className="text-ink-secondary" aria-label="뒤로">

@@ -103,8 +103,12 @@ export function TalkRoomList() {
         <ul className="mt-2 flex-1 overflow-y-auto scrollbar-thin">
           {filtered.map((room) => {
             const active = room.id === selectedRoomId;
+            const isLatest = room.id === rooms.at(-1)?.id;
             return (
-              <li key={room.id}>
+              <li
+                key={room.id}
+                className={cn(isLatest && 'animate-fade-in')}
+              >
                 <button
                   onClick={() => select(room.id)}
                   className={cn(
