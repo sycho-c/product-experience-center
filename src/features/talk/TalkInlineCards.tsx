@@ -10,14 +10,24 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { FileExtBadge } from './FileExtBadge';
-import type { Talk, TalkAction } from '@/types/talk';
+import { cn } from '@/lib/utils';
+import type { Talk, TalkAction, TalkAttachment } from '@/types/talk';
 
 interface TalkInlineCardsProps {
   talk: Talk;
   isMe: boolean;
+  /** 메시지 시간 — 마지막 첨부 row 에 노출되며 그룹의 마지막이 아닌 경우 invisible 처리 */
+  time?: string;
+  /** 그룹(같은 발신자 + 같은 분) 의 마지막 메시지일 때만 시간 visible */
+  isLastInGroup?: boolean;
 }
 
-export function TalkInlineCards({ talk, isMe }: TalkInlineCardsProps) {
+export function TalkInlineCards({
+  talk,
+  isMe,
+  time,
+  isLastInGroup = true,
+}: TalkInlineCardsProps) {
   const cards: React.ReactNode[] = [];
 
   if (talk.type === 'bizform' || talk.action?.type === 'ATTACH_BIZFORM') {
@@ -37,7 +47,15 @@ export function TalkInlineCards({ talk, isMe }: TalkInlineCardsProps) {
     talk.action?.type === 'ATTACH_FILE' ||
     (talk.attachments?.length ?? 0) > 0
   ) {
-    cards.push(<FileCard key="file" talk={talk} />);
+    cards.push(
+      <FileCards
+        key="file"
+        talk={talk}
+        isMe={isMe}
+        time={time}
+        isLastInGroup={isLastInGroup}
+      />
+    );
   }
   if (talk.type === 'invite' || talk.action?.type === 'INVITE_EXTERNAL') {
     cards.push(<InviteCard key="invite" action={talk.action} />);
@@ -136,11 +154,52 @@ function KnowledgeCard() {
   );
 }
 
-function FileCard({ talk }: { talk: Talk }) {
-  const file = talk.attachments?.[0] ?? {
-    name: '추가_특약_조건_상세.xlsx',
-    size: 24_576,
-  };
+function FileCards({
+  talk,
+  isMe,
+  time,
+  isLastInGroup,
+}: {
+  talk: Talk;
+  isMe: boolean;
+  time?: string;
+  isLastInGroup: boolean;
+}) {
+  const files: TalkAttachment[] = talk.attachments?.length
+    ? talk.attachments
+    : [{ name: '추가_특약_조건_상세.xlsx', size: 24_576 }];
+  return (
+    <>
+      {files.map((file, i) => {
+        const isLastFile = i === files.length - 1;
+        const showTime = !!time && isLastInGroup && isLastFile;
+        return (
+          <div
+            key={`${talk.id}-file-${i}`}
+            className={cn(
+              'flex items-end gap-1.5',
+              isMe ? 'flex-row-reverse' : 'flex-row'
+            )}
+          >
+            <FileCardSingle file={file} />
+            {time && (
+              <span
+                className={cn(
+                  'shrink-0 pb-0.5 text-[10px] text-ink-muted',
+                  !showTime && 'invisible'
+                )}
+              >
+                {time}
+              </span>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+function FileCardSingle({ file }: { file: TalkAttachment }) {
   const isImage =
     file.mime?.startsWith('image/') ||
     /\.(png|jpe?g|gif|svg|webp)$/i.test(file.name);
@@ -165,7 +224,10 @@ function FileCard({ talk }: { talk: Talk }) {
     <div className="flex w-[260px] items-center gap-2.5 rounded-lg border border-surface-border bg-surface-card p-2.5">
       <FileExtBadge name={file.name} />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-xs font-medium text-ink-primary">
+        <div
+          className="truncate text-xs font-medium text-ink-primary"
+          title={file.name}
+        >
           {file.name}
         </div>
         <div className="text-[11px] text-ink-muted">

@@ -66,6 +66,21 @@ export interface MultiSelectState {
   selectedIds: string[];
 }
 
+/** 대화 조회(talk-search) 메뉴의 검색 상태 — 시나리오에서 set_talk_search 액션으로 조작 */
+export interface TalkSearchState {
+  tab: 'rooms' | 'messages';
+  keyword: string;
+  senderFilter: string;
+  selectedMessageId: string | null;
+}
+
+const EMPTY_TALK_SEARCH: TalkSearchState = {
+  tab: 'rooms',
+  keyword: '',
+  senderFilter: 'all',
+  selectedMessageId: null,
+};
+
 export interface UISimState {
   modals: Record<string, ModalState>;
   inputs: Record<string, string>;
@@ -92,6 +107,10 @@ export interface UISimState {
   ocrStatusByModal: Record<string, OcrStatus>;
   /** 다중 메시지 선택 모드 — 활성 시 메시지 체크박스 + 하단 sticky bar. */
   multiSelect: MultiSelectState | null;
+  /** Cowork+ 셸의 활성 사이드바 section. null 이면 컴포넌트 기본값('talk') 사용. */
+  activeSection: string | null;
+  /** 대화 조회 메뉴 검색 상태 — TalkSearchView 가 sync */
+  talkSearch: TalkSearchState;
 }
 
 interface UISimActions {
@@ -127,6 +146,8 @@ interface UISimActions {
   enterMultiSelect: (roomId: string) => void;
   exitMultiSelect: () => void;
   toggleMessageSelect: (messageId: string, on?: boolean) => void;
+  setActiveSection: (section: string | null) => void;
+  setTalkSearch: (patch: Partial<TalkSearchState>) => void;
 }
 
 const EMPTY_STATE: UISimState = {
@@ -148,6 +169,8 @@ const EMPTY_STATE: UISimState = {
   highlight: null,
   ocrStatusByModal: {},
   multiSelect: null,
+  activeSection: null,
+  talkSearch: { ...EMPTY_TALK_SEARCH },
 };
 
 export const useUISimStore = create<UISimState & UISimActions>()(
@@ -167,6 +190,8 @@ export const useUISimStore = create<UISimState & UISimActions>()(
         mobileChatList: [],
         ocrStatusByModal: {},
         multiSelect: null,
+        activeSection: null,
+        talkSearch: { ...EMPTY_TALK_SEARCH },
       })),
     applySeed: (seed) =>
       set((s) => {
@@ -196,6 +221,8 @@ export const useUISimStore = create<UISimState & UISimActions>()(
         s.highlight = null;
         s.ocrStatusByModal = {};
         s.multiSelect = null;
+        s.activeSection = null;
+        s.talkSearch = { ...EMPTY_TALK_SEARCH };
       }),
     setOcrStatus: (modalId, status) =>
       set((s) => {
@@ -345,6 +372,14 @@ export const useUISimStore = create<UISimState & UISimActions>()(
             (id) => id !== messageId
           );
         }
+      }),
+    setActiveSection: (section) =>
+      set((s) => {
+        s.activeSection = section;
+      }),
+    setTalkSearch: (patch) =>
+      set((s) => {
+        s.talkSearch = { ...s.talkSearch, ...patch };
       }),
   }))
 );

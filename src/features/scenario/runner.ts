@@ -5,6 +5,7 @@ import { applyUIAction } from '@/features/ui-simulation/actions';
 import { useTaskStore } from '@/features/domain/tasks/store';
 import { useBizFormStore } from '@/features/domain/bizforms/store';
 import { useKnowledgeStore } from '@/features/domain/knowledge/store';
+import { resetTalkClocks } from '@/lib/time';
 import type { Talk } from '@/types/talk';
 import type { Scenario, Step } from '@/types/scenario';
 import type { UIAction } from '@/types/uiaction';
@@ -42,6 +43,7 @@ function clearTicker() {
  */
 export function applyScenarioSeed(scenario: Scenario): void {
   visited.clear();
+  resetTalkClocks();
   useTalkStore.getState().clear();
   useTaskStore.getState().reset();
   useBizFormStore.getState().reset();

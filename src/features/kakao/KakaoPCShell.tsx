@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useUISimStore } from '@/features/ui-simulation/store';
 import { MessageInput } from '@/features/coworkplus/MessageInput';
-import { formatClock, formatDateLabel } from '@/lib/time';
+import { formatDateLabel, getTalkClock, isLastInTalkGroup } from '@/lib/time';
 import { cn } from '@/lib/utils';
 import type { Talk } from '@/types/talk';
 
@@ -125,9 +125,10 @@ export function KakaoPCShell() {
                 </span>
               </div>
               <ul className="mt-4 space-y-3">
-                {roomTalks.map((t) => {
+                {roomTalks.map((t, i) => {
                   const me = t.from.role === 'me';
                   const sys = t.type === 'system' || t.from.role === 'system';
+                  const isLastInGroup = isLastInTalkGroup(t, roomTalks[i + 1]);
                   if (sys) {
                     return (
                       <li key={t.id} className="flex justify-center">
@@ -171,8 +172,13 @@ export function KakaoPCShell() {
                         >
                           {t.content}
                         </div>
-                        <span className="text-[10px] text-ink-muted">
-                          {formatClock()}
+                        <span
+                          className={cn(
+                            'text-[10px] text-ink-muted',
+                            !isLastInGroup && 'invisible'
+                          )}
+                        >
+                          {getTalkClock(t.id)}
                         </span>
                       </div>
                     </li>

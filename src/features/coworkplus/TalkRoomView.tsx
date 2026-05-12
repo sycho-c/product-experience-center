@@ -14,7 +14,7 @@ import {
 import { useTalkStore } from '@/features/talk/store';
 import { useUISimStore } from '@/features/ui-simulation/store';
 import type { Talk } from '@/types/talk';
-import { formatClock, formatDateLabel } from '@/lib/time';
+import { formatDateLabel, getTalkClock, isLastInTalkGroup } from '@/lib/time';
 import { TalkInput } from './TalkInput';
 import { TalkInlineCards } from '@/features/talk/TalkInlineCards';
 import { progressOrDo } from '@/lib/use-scenario-match';
@@ -226,7 +226,7 @@ export function TalkRoomView({
       >
         <DateDivider label={formatDateLabel()} />
         <ul className="mt-4 space-y-3">
-          {timeline.map((talk) => {
+          {timeline.map((talk, idx) => {
             const selectable =
               isMultiActive &&
               talk.type !== 'system' &&
@@ -234,6 +234,7 @@ export function TalkRoomView({
             const selected =
               isMultiActive &&
               !!multiSelect?.selectedIds.includes(talk.id);
+            const isLastInGroup = isLastInTalkGroup(talk, timeline[idx + 1]);
             return (
               <li key={talk.id}>
                 <div className="flex items-start gap-2">
@@ -264,7 +265,11 @@ export function TalkRoomView({
                     </button>
                   )}
                   <div className="min-w-0 flex-1">
-                    <TalkBubble talk={talk} skin={skin} />
+                    <TalkBubble
+                      talk={talk}
+                      skin={skin}
+                      isLastInGroup={isLastInGroup}
+                    />
                   </div>
                 </div>
               </li>
@@ -379,10 +384,13 @@ function MaskedCheck() {
 interface TalkBubbleProps {
   talk: Talk;
   skin: 'cowork' | 'kakao';
+  isLastInGroup?: boolean;
 }
 
-function TalkBubble({ talk, skin }: TalkBubbleProps) {
-  const time = formatClock(new Date(Date.now() - (10_000 - talk.offsetMs)));
+function TalkBubble({ talk, skin, isLastInGroup = true }: TalkBubbleProps) {
+  const time = getTalkClock(talk.id);
+  const hasAttachments = (talk.attachments?.length ?? 0) > 0;
+  const hideBubbleTime = hasAttachments || !isLastInGroup;
   const isMe = talk.from.role === 'me';
   const isSystem = talk.type === 'system' || talk.from.role === 'system';
 
@@ -473,9 +481,21 @@ function TalkBubble({ talk, skin }: TalkBubbleProps) {
             보임
           </span>
         )}
-        <div className="flex w-full min-w-0 items-end gap-1.5">
+        <div
+          className={cn(
+            'flex w-full min-w-0 items-end gap-1.5',
+            isMe ? 'justify-end' : 'justify-start'
+          )}
+        >
           {isMe && (
-            <span className="shrink-0 text-[10px] text-ink-muted">{time}</span>
+            <span
+              className={cn(
+                'shrink-0 text-[10px] text-ink-muted',
+                hideBubbleTime && 'invisible'
+              )}
+            >
+              {time}
+            </span>
           )}
           <div className="relative min-w-0">
             <div className={cn(bubbleBase, isMe ? meStyles : otherStyles)}>
@@ -484,13 +504,27 @@ function TalkBubble({ talk, skin }: TalkBubbleProps) {
             {!isKakao && <MessageActionsMenu talk={talk} isMe={isMe} />}
           </div>
           {!isMe && (
-            <span className="shrink-0 text-[10px] text-ink-muted">{time}</span>
+            <span
+              className={cn(
+                'shrink-0 text-[10px] text-ink-muted',
+                hideBubbleTime && 'invisible'
+              )}
+            >
+              {time}
+            </span>
           )}
         </div>
         {talk.taskChip && (
           <TaskChip chip={talk.taskChip} onToggle={onToggleChip} />
         )}
-        {!isKakao && <TalkInlineCards talk={talk} isMe={isMe} />}
+        {!isKakao && (
+          <TalkInlineCards
+            talk={talk}
+            isMe={isMe}
+            time={time}
+            isLastInGroup={isLastInGroup}
+          />
+        )}
       </div>
     </div>
   );

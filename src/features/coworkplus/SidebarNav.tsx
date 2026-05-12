@@ -72,16 +72,14 @@ interface SidebarNavProps {
 }
 
 export function SidebarNav({
-  activeId: activeIdProp = 'talk',
+  activeId = 'talk',
   userName = '김도윤',
   onSectionChange,
 }: SidebarNavProps) {
-  const [activeId, setActiveId] = useState(activeIdProp);
   const [mock, setMock] = useState<MenuItem['mock'] | null>(null);
   const [collapsed, setCollapsed] = useState(false);
 
   const onSelect = (item: MenuItem) => {
-    setActiveId(item.id);
     if (item.section) {
       onSectionChange?.(item.section);
       return;
@@ -203,7 +201,6 @@ export function SidebarNav({
         description={mock?.description}
         onClose={() => {
           setMock(null);
-          setActiveId('talk');
           onSectionChange?.('talk');
         }}
       />

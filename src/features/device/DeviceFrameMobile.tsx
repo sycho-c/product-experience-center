@@ -15,8 +15,9 @@ import { useUISimStore } from '@/features/ui-simulation/store';
 import { MobileMessageInput } from '@/features/coworkplus/MessageInput';
 import { MobileMenuDropdown } from '@/features/coworkplus/MobileMenuDropdown';
 import { BizFormModal } from '@/features/coworkplus/BizFormModal';
+import { KakaoMobileShell } from '@/features/kakao/KakaoMobileShell';
 import { MockModal } from '@/components/MockModal';
-import { formatClock } from '@/lib/time';
+import { getTalkClock, isLastInTalkGroup } from '@/lib/time';
 import { cn } from '@/lib/utils';
 import type { Talk, TalkAttachment } from '@/types/talk';
 import type { ParticipantSeed } from '@/types/uiaction';
@@ -45,18 +46,21 @@ export function DeviceFrameMobile({
   );
 
   const mobileRoomId = useUISimStore((s) => s.mobileRoomId);
+  const currentRoomId = useUISimStore((s) => s.currentRoomId);
+  // Before(카톡) 모드에서 모바일이 별도 선택을 안 했으면 PC 가 보는 방을 자동 폴백
+  const activeRoomId = isKakao ? (mobileRoomId ?? currentRoomId) : mobileRoomId;
   const room = useUISimStore((s) =>
-    mobileRoomId ? s.rooms.find((r) => r.id === mobileRoomId) : null
+    activeRoomId ? s.rooms.find((r) => r.id === activeRoomId) : null
   );
   const roomTalks = useUISimStore((s) =>
-    mobileRoomId ? (s.roomTalks[mobileRoomId] ?? EMPTY_TALKS) : EMPTY_TALKS
+    activeRoomId ? (s.roomTalks[activeRoomId] ?? EMPTY_TALKS) : EMPTY_TALKS
   );
   const chatList = useUISimStore((s) => s.mobileChatList);
   const setMobileRoom = useUISimStore((s) => s.setMobileRoom);
   const markRead = useUISimStore((s) => s.markMobileChatRead);
   const consumeNotice = useUISimStore((s) => s.consumeMobileNotice);
 
-  const showRoom = !!mobileRoomId;
+  const showRoom = !!activeRoomId;
 
   const onTapChat = (roomId: string, noticeId?: string) => {
     setMobileRoom(roomId);
@@ -88,12 +92,14 @@ export function DeviceFrameMobile({
             <span className="absolute left-1/2 top-1 h-4 w-16 -translate-x-1/2 rounded-full bg-ink-primary/85" />
           </div>
 
-          {showRoom ? (
+          {isKakao ? (
+            <KakaoMobileShell activeRoomId={activeRoomId} />
+          ) : showRoom ? (
             <ChatRoomScreen
               roomTitle={room?.title ?? '대화'}
               participantCount={room?.participantCount ?? 1}
               talks={roomTalks}
-              roomId={mobileRoomId!}
+              roomId={activeRoomId!}
               onBack={() => setMobileRoom(null)}
               isKakao={isKakao}
             />
@@ -108,8 +114,8 @@ export function DeviceFrameMobile({
           )}
 
           {/* Mobile BizForm modal — Cowork+ 모드만 */}
-          {showRoom && !isKakao && mobileRoomId && (
-            <BizFormModal roomId={mobileRoomId} />
+          {showRoom && !isKakao && activeRoomId && (
+            <BizFormModal roomId={activeRoomId} />
           )}
         </div>
       </div>
@@ -329,13 +335,14 @@ function ChatRoomScreen({
         )}
       >
         <ul className="space-y-2">
-          {talks.map((t) => (
+          {talks.map((t, i) => (
             <MobileBubble
               key={t.id}
               talk={t}
               viewerParticipant={viewerParticipant}
               participants={participants}
               isKakao={isKakao}
+              isLastInGroup={isLastInTalkGroup(t, talks[i + 1])}
             />
           ))}
         </ul>
@@ -371,6 +378,7 @@ interface MobileBubbleProps {
   viewerParticipant: ParticipantSeed | null;
   participants: ParticipantSeed[];
   isKakao: boolean;
+  isLastInGroup?: boolean;
 }
 
 function MobileBubble({
@@ -378,6 +386,7 @@ function MobileBubble({
   viewerParticipant,
   participants,
   isKakao,
+  isLastInGroup = true,
 }: MobileBubbleProps) {
   const sys = talk.type === 'system' || talk.from.role === 'system';
   if (sys) {
@@ -463,7 +472,7 @@ function MobileBubble({
       )}
       <div
         className={cn(
-          'flex max-w-[80%] flex-col gap-0.5',
+          'flex w-full max-w-[80%] flex-col gap-0.5',
           isMe ? 'items-end' : 'items-start'
         )}
       >
@@ -475,23 +484,47 @@ function MobileBubble({
         {showPlaceholder ? (
           bubble
         ) : (
-          <div className="flex w-full min-w-0 items-end gap-1">
-            {isMe && (
-              <span className="shrink-0 text-[10px] text-ink-muted">
-                {formatClock()}
-              </span>
+          <div
+            className={cn(
+              'flex w-full min-w-0 items-end gap-1',
+              isMe ? 'flex-row-reverse' : 'flex-row'
             )}
+          >
             {bubble}
-            {!isMe && (
-              <span className="shrink-0 text-[10px] text-ink-muted">
-                {formatClock()}
-              </span>
-            )}
+            <span
+              className={cn(
+                'shrink-0 text-[10px] text-ink-muted',
+                ((talk.attachments?.length ?? 0) > 0 || !isLastInGroup) &&
+                  'invisible'
+              )}
+            >
+              {getTalkClock(talk.id)}
+            </span>
           </div>
         )}
-        {!showPlaceholder && talk.attachments?.map((att, i) => (
-          <MobileAttachmentCard key={`${talk.id}-att-${i}`} att={att} isMe={isMe} />
-        ))}
+        {!showPlaceholder && talk.attachments?.map((att, i) => {
+          const isLastFile = i === (talk.attachments?.length ?? 0) - 1;
+          const showTime = isLastFile && isLastInGroup;
+          return (
+            <div
+              key={`${talk.id}-att-${i}`}
+              className={cn(
+                'flex w-full items-end gap-1',
+                isMe ? 'flex-row-reverse' : 'flex-row'
+              )}
+            >
+              <MobileAttachmentCard att={att} isMe={isMe} />
+              <span
+                className={cn(
+                  'shrink-0 pb-0.5 text-[10px] text-ink-muted',
+                  !showTime && 'invisible'
+                )}
+              >
+                {getTalkClock(talk.id)}
+              </span>
+            </div>
+          );
+        })}
         {talk.taskChip && !showPlaceholder && (
           <span
             className={cn(
@@ -539,8 +572,7 @@ function MobileAttachmentCard({
   return (
     <div
       className={cn(
-        'flex w-full max-w-[200px] items-center gap-2 rounded-xl border border-surface-border bg-white px-2 py-1.5 text-[11px] shadow-sm',
-        isMe ? 'self-end' : 'self-start'
+        'flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-surface-border bg-white px-2 py-1.5 text-[11px] shadow-sm'
       )}
     >
       <FileExtBadge name={att.name} size="sm" />

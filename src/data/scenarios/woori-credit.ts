@@ -6,7 +6,7 @@ import { meta } from './woori-credit.meta';
 const ROOM_ID = 'wc-room';
 const HOST_ID = 'host-1';
 const STAFF_ID = 'staff-lee';
-const HOST_NAME = '조승열';
+const HOST_NAME = '김도윤';
 const STAFF_NAME = '이수진';
 
 const COMPANIES = [
@@ -123,14 +123,14 @@ const externals: ParticipantSeed[] = NAMES.slice(0, 70).map((name, i) => {
 const internals: ParticipantSeed[] = [
   {
     id: HOST_ID,
-    displayName: `${HOST_NAME}(여신팀)`,
+    displayName: `${HOST_NAME}(렌터카)`,
     external: false,
     isHost: true,
     device: 'PC',
   },
   {
     id: STAFF_ID,
-    displayName: `${STAFF_NAME}(여신팀)`,
+    displayName: `${STAFF_NAME}(렌터카)`,
     external: false,
     device: 'PC',
   },
@@ -208,7 +208,7 @@ const stepActions: UIAction[][] = [
     {
       kind: 'select_room',
       roomId: ROOM_ID,
-      description: '여신팀 ↔ 거래처 단체 대화방을 엽니다.',
+      description: '렌터카팀 ↔ 거래처 단체 대화방을 엽니다.',
     },
     {
       kind: 'mobile_open_room',
@@ -355,7 +355,7 @@ const stepActions: UIAction[][] = [
     {
       kind: 'approve_bizform',
       bizformId: BIZFORM_ID,
-      description: '여신팀 호스트가 비즈폼을 승인합니다.',
+      description: '렌터카팀 호스트가 비즈폼을 승인합니다.',
     },
     {
       kind: 'update_task_chip_status',
@@ -402,7 +402,7 @@ const stepDescriptions = [
   '비즈폼 메뉴 선택 시 Google Forms 스타일 작성 모달이 열립니다.',
   '견적번호, 요청내용, 첨부 자료를 입력합니다.',
   '비즈폼을 제출하여 대화방에 inline 카드가 생성되고 RightRail 비즈폼 패널에 등록됩니다.',
-  '여신팀 호스트가 비즈폼을 승인하고 할 일 chip 을 "완료" 로 변경합니다.',
+  '렌터카팀 호스트가 비즈폼을 승인하고 할 일 chip 을 "완료" 로 변경합니다.',
 ];
 
 const steps: Step[] = stepActions.map((actions, i) => ({
@@ -449,7 +449,7 @@ const scenario: Scenario = {
     rooms: [
       {
         id: ROOM_ID,
-        title: '여신팀 ↔ 거래처 협업방',
+        title: '렌터카팀 ↔ 거래처 협업방',
         participantCount: allParticipants.length,
         preview: '여신 한도 상향 검토 진행 중',
         device: 'PC',

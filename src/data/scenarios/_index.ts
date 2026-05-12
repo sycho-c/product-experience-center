@@ -4,6 +4,7 @@ import { meta as hanaInsuranceMeta } from './hana-insurance-collab.meta';
 import { meta as wooriMeta } from './woori-credit.meta';
 import { meta as aiMeta } from './ai-smart-assist.meta';
 import { meta as nextGenMeta } from './next-gen-comm.meta';
+import { meta as gaonMeta } from './gaon-cable-sales-bridge.meta';
 
 interface ScenarioRegistryEntry extends ScenarioMeta {
   load: () => Promise<Scenario>;
@@ -18,6 +19,7 @@ export const scenarioRegistry: ScenarioRegistryEntry[] = [
   { ...basicMeta, load: lazy(() => import('./basic-room-creation')) },
   { ...hanaInsuranceMeta, load: lazy(() => import('./hana-insurance-collab')) },
   { ...wooriMeta, load: lazy(() => import('./woori-credit')) },
+  { ...gaonMeta, load: lazy(() => import('./gaon-cable-sales-bridge')) },
   { ...aiMeta, load: lazy(() => import('./ai-smart-assist')) },
   { ...nextGenMeta, load: lazy(() => import('./next-gen-comm')) },
 ];

@@ -6,7 +6,7 @@ const ROOM_ID = 'hi-room';
 const KAKAO_ROOM_ID = 'hi-kakao-room';
 const HOST_ID = 'hi-host';
 const DESIGNER_ID = 'hi-designer';
-const HOST_NAME = '김용익';
+const HOST_NAME = '김도윤';
 const DESIGNER_NAME = '영업가족-김철수';
 const DESIGNER_FULL = `${DESIGNER_NAME}(5250223)/(주)에즈금융서비스_TM/탑스-의정부`;
 
@@ -142,7 +142,7 @@ const stepActions: UIAction[][] = [
       external: false,
       device: 'PC',
       isHost: true,
-      description: '호스트(설계매니저 김용익)가 참여자에 포함됩니다.',
+      description: '호스트(설계매니저 김도윤)가 참여자에 포함됩니다.',
     },
     {
       kind: 'append_system_message',
@@ -729,7 +729,7 @@ const stepTitles = [
 ];
 
 const stepDescriptions = [
-  '설계매니저(김용익)가 우상단 "새 대화방 만들기"를 눌러 협업 채널 생성을 시작합니다.',
+  '설계매니저(김도윤)가 우상단 "새 대화방 만들기"를 눌러 협업 채널 생성을 시작합니다.',
   '영업가족 탭에서 검색으로 "영업가족-김철수(5250223)"를 찾아 선택합니다.',
   '하나손해보험 / GA설계지원 채널을 선택하고 카카오 알림톡 초대장 발송을 켠 뒤 대화방을 생성합니다.',
   '설계사가 모바일에서 카카오 알림톡 초대를 수락해 공식 협업 채널에 입장합니다.',
@@ -764,7 +764,7 @@ const beforeActions: UIAction[][] = [
     {
       kind: 'add_room',
       roomId: KAKAO_ROOM_ID,
-      title: '김용익 ↔ 김철수 (개인 카카오톡)',
+      title: '김도윤 ↔ 김철수 (개인 카카오톡)',
       participantCount: 2,
       preview: '월 1만원 내외로 설계부탁 합니다.',
       description:

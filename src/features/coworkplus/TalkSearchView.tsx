@@ -5,6 +5,7 @@ import {
   type TalkSearchRoom,
   type TalkSearchTalk,
 } from '@/data/talk-search-mock';
+import { useUISimStore } from '@/features/ui-simulation/store';
 import { cn } from '@/lib/utils';
 
 type Tab = 'rooms' | 'messages';
@@ -39,15 +40,23 @@ function formatDateHeader(dateStr: string): string {
 }
 
 export function TalkSearchView() {
-  const [tab, setTab] = useState<Tab>('rooms');
-  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
-  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
-    null
+  // tab / keyword / senderFilter / selectedMessageId 는 시나리오 액션 set_talk_search 로 외부에서도 조작 가능 → store sync
+  const tab = useUISimStore((s) => s.talkSearch.tab);
+  const keyword = useUISimStore((s) => s.talkSearch.keyword);
+  const senderFilter = useUISimStore((s) => s.talkSearch.senderFilter);
+  const selectedMessageId = useUISimStore(
+    (s) => s.talkSearch.selectedMessageId
   );
+  const setTalkSearch = useUISimStore((s) => s.setTalkSearch);
+  const setTab = (t: Tab) => setTalkSearch({ tab: t });
+  const setKeyword = (k: string) => setTalkSearch({ keyword: k });
+  const setSenderFilter = (f: string) => setTalkSearch({ senderFilter: f });
+  const setSelectedMessageId = (id: string | null) =>
+    setTalkSearch({ selectedMessageId: id });
+
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const [managerFilter, setManagerFilter] = useState<string>('all');
-  const [senderFilter, setSenderFilter] = useState<string>('all');
-  const [keyword, setKeyword] = useState('');
 
   const managers = useMemo(() => {
     const set = new Set<string>();
@@ -479,7 +488,7 @@ function MessagesTab({
       </div>
 
       {/* Body */}
-      <div className="grid min-h-0 flex-1 grid-cols-[400px_1fr] gap-0">
+      <div className="grid min-h-0 flex-1 grid-cols-2 gap-0">
         <aside className="flex min-h-0 flex-col overflow-y-auto border-r border-surface-border bg-surface-card scrollbar-thin">
           {filteredHits.length === 0 ? (
             <div className="flex h-full items-center justify-center px-4 text-center text-xs text-ink-muted">
@@ -750,7 +759,7 @@ function MessageHitCard({
             {room.title}
           </div>
           <div
-            className="mt-0.5 line-clamp-2 break-words text-xs text-ink-primary [overflow-wrap:anywhere]"
+            className="mt-0.5 line-clamp-3 whitespace-pre-wrap break-words text-xs leading-relaxed text-ink-primary [overflow-wrap:anywhere]"
             title={talk.content}
           >
             <Highlight text={talk.content} keyword={keyword} />

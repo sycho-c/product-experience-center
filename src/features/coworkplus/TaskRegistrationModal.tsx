@@ -106,7 +106,7 @@ export function TaskRegistrationModal() {
               </h2>
               {ctx.designer && (
                 <p className="text-[10px] text-ink-muted">
-                  등록자: 김용익 · 설계사: {designer}
+                  등록자: 김도윤 · 설계사: {designer}
                 </p>
               )}
             </div>

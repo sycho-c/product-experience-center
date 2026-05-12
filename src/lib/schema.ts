@@ -411,6 +411,19 @@ export const UIActionSchema = z.discriminatedUnion('kind', [
     ms: z.number().nonnegative(),
     description: z.string(),
   }),
+  z.object({
+    kind: z.literal('set_section'),
+    section: z.string(),
+    description: z.string(),
+  }),
+  z.object({
+    kind: z.literal('set_talk_search'),
+    tab: z.enum(['rooms', 'messages']).optional(),
+    keyword: z.string().optional(),
+    senderFilter: z.string().optional(),
+    selectedMessageId: z.string().nullable().optional(),
+    description: z.string(),
+  }),
 ]);
 
 export const RoomEntrySeedSchema = z.object({

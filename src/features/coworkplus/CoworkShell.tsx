@@ -29,10 +29,14 @@ export function CoworkShell({
   const currentRoomId = useUISimStore((s) => s.currentRoomId);
   const hasRooms = useUISimStore((s) => s.rooms.length > 0);
   const setModal = useUISimStore((s) => s.setModal);
+  const storeSection = useUISimStore((s) => s.activeSection);
+  const setActiveSection = useUISimStore((s) => s.setActiveSection);
   // RightRail 은 기본 숨김. 사용자가 헤더 ⓘ 버튼을 눌러 토글.
   // 좁은 Workspace 에서 항상 토글 가능.
   const [rightRailOpen, setRightRailOpen] = useState(false);
-  const [section, setSection] = useState<SidebarSectionId>('talk');
+  const section: SidebarSectionId =
+    (storeSection as SidebarSectionId | null) ?? 'talk';
+  const setSection = (next: SidebarSectionId) => setActiveSection(next);
 
   const onCreateRoomClick = () =>
     progressOrDo(() =>

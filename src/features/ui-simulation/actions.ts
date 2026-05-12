@@ -148,6 +148,20 @@ export function applyUIAction(action: UIAction): void {
     case 'wait':
       // 자동 재생 모드에서만 의미. 수동 ⏭에서는 즉시 통과.
       break;
+    case 'set_section':
+      s.setActiveSection(action.section);
+      break;
+    case 'set_talk_search': {
+      const patch: Partial<typeof s.talkSearch> = {};
+      if (action.tab !== undefined) patch.tab = action.tab;
+      if (action.keyword !== undefined) patch.keyword = action.keyword;
+      if (action.senderFilter !== undefined)
+        patch.senderFilter = action.senderFilter;
+      if (action.selectedMessageId !== undefined)
+        patch.selectedMessageId = action.selectedMessageId;
+      s.setTalkSearch(patch);
+      break;
+    }
 
     // ─────────────────────────────────────────────────────────
     // Phase 2 — 도메인 / 비밀 메시지 / 모바일 메뉴 / 비즈폼 / viewer

@@ -294,6 +294,16 @@ export type UIAction =
       on: boolean;
       description: string;
     }
+  // Cowork+ 셸 사이드바 / 대화 조회 검색 — 시나리오에서 메뉴/검색을 시연
+  | { kind: 'set_section'; section: string; description: string }
+  | {
+      kind: 'set_talk_search';
+      tab?: 'rooms' | 'messages';
+      keyword?: string;
+      senderFilter?: string;
+      selectedMessageId?: string | null;
+      description: string;
+    }
   // 보조
   | { kind: 'highlight'; selector: string | null; description: string }
   | { kind: 'wait'; ms: number; description: string };

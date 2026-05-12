@@ -69,6 +69,15 @@ const SEED: ExternalUser[] = [
   { id: 'eu-008', name: '이상현', phone: '001-1000-0008', group: 'G3' },
   { id: 'eu-009', name: '정도현', phone: '001-1000-0009', manager: '한세영' },
   { id: 'eu-010', name: '최우진', phone: '001-1000-0010', group: 'G1' },
+  {
+    id: 'eu-011',
+    name: '박대표',
+    phone: '010-2200-3311',
+    email: 'park@miu-cable.co.kr',
+    group: '미우케이블',
+    manager: '강승희',
+    type: 'VIP',
+  },
 ];
 
 interface ExternalUsersState {
