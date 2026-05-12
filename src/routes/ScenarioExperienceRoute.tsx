@@ -60,24 +60,28 @@ export function ScenarioExperienceRoute() {
       scenario={scenario}
       loading={loading}
       right={
-        <div className="space-y-4">
-          <BeforeAfterToggle />
-          {scenario && (
-            <div>
-              <h2 className="text-lg font-bold text-ink-primary">
-                {scenario.title}
-              </h2>
-              {scenario.summary && (
-                <p className="mt-1 text-xs text-ink-secondary leading-relaxed">
-                  {scenario.summary}
-                </p>
-              )}
-            </div>
-          )}
-          <CurrentActionCaption />
-          <ScenarioStepList />
+        <div className="flex h-full min-h-0 flex-col gap-4">
+          <div className="shrink-0 space-y-4">
+            <BeforeAfterToggle />
+            {scenario && (
+              <div>
+                <h2 className="text-lg font-bold text-ink-primary">
+                  {scenario.title}
+                </h2>
+                {scenario.summary && (
+                  <p className="mt-1 text-xs text-ink-secondary leading-relaxed">
+                    {scenario.summary}
+                  </p>
+                )}
+              </div>
+            )}
+            <CurrentActionCaption />
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col">
+            <ScenarioStepList />
+          </div>
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-3 text-xs text-rose-700">
+            <div className="shrink-0 rounded-xl border border-rose-200 bg-rose-50/60 p-3 text-xs text-rose-700">
               오류: {error}
             </div>
           )}

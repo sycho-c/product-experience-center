@@ -97,12 +97,12 @@ export function BizFormModal({ roomId }: BizFormModalProps) {
 
   return (
     <div
-      className="absolute inset-0 z-30 flex items-end justify-center bg-black/40"
+      className="absolute inset-0 z-30 flex animate-backdrop-fade items-end justify-center bg-black/40"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="flex max-h-[88%] w-full flex-col overflow-hidden rounded-t-2xl border border-surface-border bg-surface-card shadow-elev animate-fade-in"
+        className="flex max-h-[88%] w-full animate-modal-slide-up flex-col overflow-hidden rounded-t-2xl border border-surface-border bg-surface-card shadow-elev"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

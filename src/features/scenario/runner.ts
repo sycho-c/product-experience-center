@@ -14,6 +14,42 @@ const TICK_INTERVAL_MS = 100;
 const DEFAULT_STEP_DURATION_MS = 8_000;
 const ACTION_AUTO_INTERVAL_MS = 1_400;
 
+// 풍선·캡션이 한 번에 풀로 등장하므로 다음 액션까지의 휴식 = 사용자 읽기 속도 기준.
+// "현재 단계" 설명(action.description) 과 풍선 본문(content) 중 긴 쪽의 글자수로 잡는다.
+const DWELL_BASE_MS = 1_500;
+const DWELL_PER_CHAR_MS = 45;
+const DWELL_MIN_MS = 1_500;
+const DWELL_MAX_MS = 4_500;
+
+function charsOf(text: string | undefined | null): number {
+  return Array.from(text ?? '').length;
+}
+
+function getActionDwellMs(action: UIAction): number {
+  const descChars = charsOf(action.description);
+  let bodyChars = 0;
+  switch (action.kind) {
+    case 'append_chat':
+    case 'append_system_message':
+      bodyChars = charsOf(action.content);
+      break;
+    case 'send_secret_message':
+      bodyChars = charsOf(action.content);
+      break;
+    case 'wait':
+      return Math.max(DWELL_MIN_MS, action.ms);
+    default:
+      // 화면 전환·인스턴트 액션은 description 길이만 반영.
+      bodyChars = 0;
+      break;
+  }
+  const typingChars = Math.max(descChars, bodyChars);
+  return Math.max(
+    DWELL_MIN_MS,
+    Math.min(DWELL_MAX_MS, typingChars * DWELL_PER_CHAR_MS + DWELL_BASE_MS),
+  );
+}
+
 let tickerHandle: ReturnType<typeof setInterval> | null = null;
 const visited = new Set<string>();
 
@@ -108,10 +144,10 @@ function applyAction(action: UIAction): void {
 function tickAction() {
   const store = useScenarioStore.getState();
   if (store.status !== 'playing') return;
-  const stepped = nextAction({ silent: true });
-  if (!stepped) return; // 시나리오 끝
+  const dispatched = nextActionReturning({ silent: true });
+  if (!dispatched) return; // 시나리오 끝
   if (useScenarioStore.getState().status === 'playing') {
-    actionAutoHandle = setTimeout(tickAction, ACTION_AUTO_INTERVAL_MS);
+    actionAutoHandle = setTimeout(tickAction, getActionDwellMs(dispatched));
   }
 }
 
@@ -129,10 +165,10 @@ export function play() {
   clearTicker();
   clearActionAuto();
   if (isActionMode(getCurrentStep())) {
-    // ▶ 클릭 시 즉시 첫 액션 dispatch + 1.4s 간격으로 연속 자동 진행.
-    const stepped = nextAction({ silent: true });
-    if (stepped) {
-      actionAutoHandle = setTimeout(tickAction, ACTION_AUTO_INTERVAL_MS);
+    // ▶ 클릭 시 즉시 첫 액션 dispatch + 본문 길이에 비례한 간격으로 연속 자동 진행.
+    const dispatched = nextActionReturning({ silent: true });
+    if (dispatched) {
+      actionAutoHandle = setTimeout(tickAction, getActionDwellMs(dispatched));
     }
   } else {
     tickerHandle = setInterval(tickLegacy, TICK_INTERVAL_MS);
@@ -146,30 +182,29 @@ export function pause() {
 }
 
 /**
- * 현재 step 의 다음 액션을 dispatch.
- * step 끝이면 다음 step 의 첫 액션.
- * 시나리오 끝이면 status=completed 로 전환하고 false 반환.
+ * 현재 step 의 다음 액션을 dispatch 하고, 적용된 UIAction 을 반환.
+ * step 끝이면 다음 step 의 첫 액션. 시나리오 끝이면 status=completed 로 전환하고 null 반환.
+ * legacy(액션 없는) step 은 step 단위로 advance 하고 null 반환.
  */
-export function nextAction(opts: { silent?: boolean } = {}): boolean {
+function nextActionReturning(opts: { silent?: boolean } = {}): UIAction | null {
   const store = useScenarioStore.getState();
   const steps = getActiveSteps();
   let stepIndex = store.stepIndex;
   let step = steps[stepIndex];
 
-  if (!step) return false;
+  if (!step) return null;
 
-  // 액션이 없는 step (legacy) 인 경우 step 단위로 advance
   if (!isActionMode(step)) {
-    return advanceStep();
+    advanceStep();
+    return null;
   }
 
   let actionIndex = store.actionIndex;
-  // 현재 step 끝이면 다음 step 으로
   if (actionIndex >= (step.actions?.length ?? 0)) {
     if (stepIndex + 1 >= steps.length) {
       store.setStatus('completed');
       clearActionAuto();
-      return false;
+      return null;
     }
     stepIndex += 1;
     actionIndex = 0;
@@ -178,15 +213,21 @@ export function nextAction(opts: { silent?: boolean } = {}): boolean {
   }
 
   const action = step.actions?.[actionIndex];
-  if (!action) return false;
+  if (!action) return null;
 
   applyAction(action);
   store.setActionIndex(actionIndex + 1);
   if (!opts.silent) {
-    // 수동 ⏭ 일 때 자동재생을 멈춤
     clearActionAuto();
   }
-  return true;
+  return action;
+}
+
+/**
+ * 외부에서 호출하는 ⏭ 액션 — 적용 여부만 boolean 으로 알려준다.
+ */
+export function nextAction(opts: { silent?: boolean } = {}): boolean {
+  return nextActionReturning(opts) !== null;
 }
 
 export function prevAction(): boolean {

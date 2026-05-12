@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Check, Play } from 'lucide-react';
 import {
   useScenarioStore,
@@ -12,20 +13,25 @@ export function ScenarioStepList() {
   const actionIndex = useScenarioStore((s) => s.actionIndex);
   const status = useScenarioStore((s) => s.status);
   const showGuide = useScenarioStore((s) => s.showStepGuide);
+  const activeRef = useRef<HTMLLIElement | null>(null);
+
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [stepIndex]);
 
   return (
-    <div>
-      <div className="mb-3 flex items-center justify-between">
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="mb-3 flex shrink-0 items-center justify-between">
         <h3 className="text-sm font-semibold text-ink-primary">시나리오 단계</h3>
         <span className="text-xs text-ink-muted">전체 단계 {steps.length}</span>
       </div>
-      <ul className="space-y-1">
+      <ul className="flex-1 space-y-1 overflow-y-auto scrollbar-thin pr-1">
         {steps.map((step, idx) => {
           const completed = idx < stepIndex;
           const active = idx === stepIndex;
           const stepActionTotal = step.actions?.length ?? 0;
           return (
-            <li key={step.id}>
+            <li key={step.id} ref={active ? activeRef : undefined}>
               <button
                 onClick={() => {
                   if (status === 'playing') pause();

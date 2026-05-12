@@ -95,8 +95,8 @@ export function TaskRegistrationModal() {
   const completed = ocrStatus === 'completed';
 
   return (
-    <div className="absolute inset-0 z-40 flex bg-black/30 p-6 backdrop-blur-sm">
-      <div className="m-auto flex h-full max-h-[min(640px,100%)] min-h-0 w-full max-w-[min(960px,100%)] overflow-hidden rounded-xl bg-surface-card shadow-elev">
+    <div className="absolute inset-0 z-40 flex animate-backdrop-fade bg-black/30 p-6 backdrop-blur-sm">
+      <div className="m-auto flex h-full max-h-[min(640px,100%)] min-h-0 w-full max-w-[min(960px,100%)] animate-modal-pop overflow-hidden rounded-xl bg-surface-card shadow-elev">
         {/* Left: form (60%) */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col" style={{ flexBasis: '60%' }}>
           <header className="flex shrink-0 items-center justify-between border-b border-surface-border px-5 py-3">

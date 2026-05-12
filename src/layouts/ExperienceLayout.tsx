@@ -69,7 +69,7 @@ export function ExperienceLayout({
         <main className="flex min-w-0 flex-1 flex-col bg-surface-canvas p-3">
           <div className={cn('flex flex-1 min-h-0')}>{center}</div>
         </main>
-        <aside className="w-[320px] shrink-0 overflow-y-auto scrollbar-thin border-l border-surface-border bg-surface-card p-4">
+        <aside className="flex w-[320px] shrink-0 flex-col overflow-hidden border-l border-surface-border bg-surface-card p-4">
           {right}
         </aside>
       </div>

@@ -27,13 +27,13 @@ export function MockModal({
   if (!open) return null;
   return (
     <div
-      className="absolute inset-3 z-40 flex items-center justify-center bg-black/30 backdrop-blur-sm rounded-lg"
+      className="absolute inset-3 z-40 flex animate-backdrop-fade items-center justify-center rounded-lg bg-black/30 backdrop-blur-sm"
       onClick={onClose}
       role="presentation"
     >
       <div
         className={cn(
-          'relative flex max-h-[min(560px,calc(100%-16px))] w-full flex-col overflow-hidden rounded-xl border border-surface-border bg-surface-card shadow-elev',
+          'relative flex max-h-[min(560px,calc(100%-16px))] w-full animate-modal-pop flex-col overflow-hidden rounded-xl border border-surface-border bg-surface-card shadow-elev',
           size === 'sm'
             ? 'max-w-[min(360px,calc(100%-16px))]'
             : 'max-w-[min(520px,calc(100%-16px))]'

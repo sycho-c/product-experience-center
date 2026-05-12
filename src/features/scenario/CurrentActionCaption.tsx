@@ -1,5 +1,6 @@
 import { Sparkles } from 'lucide-react';
 import { useScenarioStore } from './store';
+import { TypingText } from '@/lib/use-typewriter';
 
 export function CurrentActionCaption() {
   const description = useScenarioStore((s) => s.currentActionDescription);
@@ -20,9 +21,11 @@ export function CurrentActionCaption() {
         {step.title}
       </div>
       {description ? (
-        <p className="mt-1.5 text-xs leading-relaxed text-ink-secondary">
-          {description}
-        </p>
+        <TypingText
+          as="p"
+          text={description}
+          className="mt-1.5 text-xs leading-relaxed text-ink-secondary"
+        />
       ) : (
         <p className="mt-1.5 text-xs leading-relaxed text-ink-muted">
           ▶ 또는 다음 액션 버튼을 눌러 시작하세요.

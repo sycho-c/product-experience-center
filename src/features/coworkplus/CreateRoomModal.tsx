@@ -164,8 +164,8 @@ export function CreateRoomModal() {
     });
 
   return (
-    <div className="absolute inset-0 z-40 flex bg-black/30 p-6 backdrop-blur-sm">
-      <div className="m-auto flex h-full max-h-[min(540px,100%)] w-full max-w-[min(720px,100%)] flex-col overflow-hidden rounded-xl bg-surface-card shadow-elev">
+    <div className="absolute inset-0 z-40 flex animate-backdrop-fade bg-black/30 p-6 backdrop-blur-sm">
+      <div className="m-auto flex h-full max-h-[min(540px,100%)] w-full max-w-[min(720px,100%)] animate-modal-pop flex-col overflow-hidden rounded-xl bg-surface-card shadow-elev">
         {/* Header */}
         <header className="flex shrink-0 items-center justify-between border-b border-surface-border px-4 py-3">
           <h2 className="text-sm font-semibold text-ink-primary">

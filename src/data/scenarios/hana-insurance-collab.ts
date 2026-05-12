@@ -78,7 +78,7 @@ const stepActions: UIAction[][] = [
     },
     {
       kind: 'toggle_check',
-      itemId: 'create-room.external.kim-5250223',
+      itemId: 'create-room.external.eu-001',
       on: true,
       description:
         "영업가족-김철수(5250223)/(주)에즈금융서비스_TM 을 선택합니다.",

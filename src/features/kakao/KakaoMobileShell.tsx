@@ -102,6 +102,7 @@ export function KakaoMobileShell({ activeRoomId }: KakaoMobileShellProps) {
                 key={t.id}
                 talk={t}
                 isLastInGroup={isLastInTalkGroup(t, talks[i + 1])}
+                isLatest={i === talks.length - 1}
               />
             ))}
           </ul>
@@ -141,13 +142,18 @@ export function KakaoMobileShell({ activeRoomId }: KakaoMobileShellProps) {
 interface KakaoBubbleProps {
   talk: Talk;
   isLastInGroup?: boolean;
+  isLatest?: boolean;
 }
 
-function KakaoBubble({ talk, isLastInGroup = true }: KakaoBubbleProps) {
+function KakaoBubble({
+  talk,
+  isLastInGroup = true,
+  isLatest = false,
+}: KakaoBubbleProps) {
   const sys = talk.type === 'system' || talk.from.role === 'system';
   if (sys) {
     return (
-      <li className="flex justify-center">
+      <li className={cn('flex justify-center', isLatest && 'animate-fade-in')}>
         <span className="rounded-full bg-black/20 px-3 py-0.5 text-[10px] text-white">
           {talk.content}
         </span>
@@ -160,7 +166,13 @@ function KakaoBubble({ talk, isLastInGroup = true }: KakaoBubbleProps) {
   const avatarLabel = (senderName ?? '?').slice(-2);
 
   return (
-    <li className={cn('flex gap-1.5', isMe ? 'justify-end' : 'justify-start')}>
+    <li
+      className={cn(
+        'flex gap-1.5',
+        isMe ? 'justify-end' : 'justify-start',
+        isLatest && 'animate-fade-in'
+      )}
+    >
       {!isMe && (
         <div className="mt-4 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#FEE500] text-[10px] font-semibold text-ink-primary">
           {avatarLabel}

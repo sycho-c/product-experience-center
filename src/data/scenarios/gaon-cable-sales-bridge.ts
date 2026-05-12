@@ -616,29 +616,7 @@ const scenario: Scenario = {
     },
   ],
   seed: {
-    rooms: [
-      {
-        id: ROOM_ID,
-        title: '미우케이블 박대표 ↔ 가온 영업',
-        participantCount: 1,
-        preview: '협업 채널 생성 대기',
-        device: 'PC',
-        timestamp: '오늘',
-      },
-    ],
-    currentRoomId: ROOM_ID,
     mobileViewerParticipantId: PARK_ID,
-    participants: {
-      [ROOM_ID]: [
-        {
-          id: HOST_ID,
-          displayName: HOST_DISPLAY,
-          external: false,
-          device: 'PC',
-          isHost: true,
-        },
-      ],
-    },
   },
   steps,
   beforeSteps,

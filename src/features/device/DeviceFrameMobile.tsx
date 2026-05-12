@@ -343,6 +343,7 @@ function ChatRoomScreen({
               participants={participants}
               isKakao={isKakao}
               isLastInGroup={isLastInTalkGroup(t, talks[i + 1])}
+              isLatest={i === talks.length - 1}
             />
           ))}
         </ul>
@@ -379,6 +380,7 @@ interface MobileBubbleProps {
   participants: ParticipantSeed[];
   isKakao: boolean;
   isLastInGroup?: boolean;
+  isLatest?: boolean;
 }
 
 function MobileBubble({
@@ -387,11 +389,12 @@ function MobileBubble({
   participants,
   isKakao,
   isLastInGroup = true,
+  isLatest = false,
 }: MobileBubbleProps) {
   const sys = talk.type === 'system' || talk.from.role === 'system';
   if (sys) {
     return (
-      <li className="flex justify-center">
+      <li className={cn('flex justify-center', isLatest && 'animate-fade-in')}>
         <span
           className={cn(
             'rounded-full border px-2 py-0.5 text-[10px]',
@@ -456,7 +459,13 @@ function MobileBubble({
   );
 
   return (
-    <li className={cn('flex', isMe ? 'justify-end' : 'justify-start')}>
+    <li
+      className={cn(
+        'flex',
+        isMe ? 'justify-end' : 'justify-start',
+        isLatest && 'animate-fade-in'
+      )}
+    >
       {!isMe && (
         <div className="mr-2 mt-4 grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-brand-primary text-[10px] font-semibold text-white shadow-soft">
           {talk.from.avatarUrl ? (

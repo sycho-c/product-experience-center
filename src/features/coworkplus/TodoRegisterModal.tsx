@@ -29,12 +29,12 @@ export function TodoRegisterModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="absolute inset-0 z-30 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+      className="absolute inset-0 z-30 flex animate-backdrop-fade items-center justify-center bg-black/30 backdrop-blur-sm"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="w-full max-w-[460px] overflow-hidden rounded-xl bg-surface-card shadow-elev"
+        className="w-full max-w-[460px] animate-modal-pop overflow-hidden rounded-xl bg-surface-card shadow-elev"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

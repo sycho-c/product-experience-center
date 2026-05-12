@@ -66,6 +66,18 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translateY(4px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        'backdrop-fade': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'modal-pop': {
+          '0%': { opacity: '0', transform: 'scale(0.96) translateY(6px)' },
+          '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
+        'modal-slide-up': {
+          '0%': { opacity: '0', transform: 'translateY(16px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
         'highlight-sweep': {
           '0%': { backgroundPosition: '-60% 0', opacity: '1' },
           '60%': { opacity: '1' },
@@ -74,6 +86,9 @@ const config: Config = {
       },
       animation: {
         'fade-in': 'fade-in 200ms ease-out',
+        'backdrop-fade': 'backdrop-fade 160ms ease-out',
+        'modal-pop': 'modal-pop 220ms cubic-bezier(0.22, 1, 0.36, 1)',
+        'modal-slide-up': 'modal-slide-up 260ms cubic-bezier(0.22, 1, 0.36, 1)',
         'highlight-sweep': 'highlight-sweep 1.6s ease-out forwards',
       },
     },

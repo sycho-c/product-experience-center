@@ -129,9 +129,16 @@ export function KakaoPCShell() {
                   const me = t.from.role === 'me';
                   const sys = t.type === 'system' || t.from.role === 'system';
                   const isLastInGroup = isLastInTalkGroup(t, roomTalks[i + 1]);
+                  const isLatest = i === roomTalks.length - 1;
                   if (sys) {
                     return (
-                      <li key={t.id} className="flex justify-center">
+                      <li
+                        key={t.id}
+                        className={cn(
+                          'flex justify-center',
+                          isLatest && 'animate-fade-in'
+                        )}
+                      >
                         <span className="rounded-full border border-black/5 bg-white/80 px-3 py-1 text-[11px] text-ink-muted">
                           {t.content}
                         </span>
@@ -143,7 +150,8 @@ export function KakaoPCShell() {
                       key={t.id}
                       className={cn(
                         'flex items-end gap-2',
-                        me ? 'justify-end' : 'justify-start'
+                        me ? 'justify-end' : 'justify-start',
+                        isLatest && 'animate-fade-in'
                       )}
                     >
                       {!me && (

@@ -173,12 +173,12 @@ export function InviteModal({ roomId, onClose }: InviteModalProps) {
 
   return (
     <div
-      className="absolute inset-0 z-40 flex items-center justify-center bg-black/40 p-6 backdrop-blur-sm"
+      className="absolute inset-0 z-40 flex animate-backdrop-fade items-center justify-center bg-black/40 p-6 backdrop-blur-sm"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="flex h-full max-h-[min(560px,100%)] w-full max-w-[min(760px,100%)] flex-col overflow-hidden rounded-xl bg-surface-card shadow-elev"
+        className="flex h-full max-h-[min(560px,100%)] w-full max-w-[min(760px,100%)] animate-modal-pop flex-col overflow-hidden rounded-xl bg-surface-card shadow-elev"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

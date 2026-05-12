@@ -269,6 +269,7 @@ export function TalkRoomView({
                       talk={talk}
                       skin={skin}
                       isLastInGroup={isLastInGroup}
+                      isLatest={idx === timeline.length - 1}
                     />
                   </div>
                 </div>
@@ -385,9 +386,16 @@ interface TalkBubbleProps {
   talk: Talk;
   skin: 'cowork' | 'kakao';
   isLastInGroup?: boolean;
+  /** timeline 의 마지막 풍선일 때만 본문 타이핑 + fade-in 적용 */
+  isLatest?: boolean;
 }
 
-function TalkBubble({ talk, skin, isLastInGroup = true }: TalkBubbleProps) {
+function TalkBubble({
+  talk,
+  skin,
+  isLastInGroup = true,
+  isLatest = false,
+}: TalkBubbleProps) {
   const time = getTalkClock(talk.id);
   const hasAttachments = (talk.attachments?.length ?? 0) > 0;
   const hideBubbleTime = hasAttachments || !isLastInGroup;
@@ -404,7 +412,7 @@ function TalkBubble({ talk, skin, isLastInGroup = true }: TalkBubbleProps) {
 
   if (isSystem) {
     return (
-      <div className="flex justify-center">
+      <div className={cn('flex justify-center', isLatest && 'animate-fade-in')}>
         <span className="rounded-full border border-surface-border bg-surface-card px-3 py-1 text-[11px] text-ink-muted">
           {talk.content}
         </span>
@@ -449,7 +457,8 @@ function TalkBubble({ talk, skin, isLastInGroup = true }: TalkBubbleProps) {
     <div
       className={cn(
         'group/talk flex items-start gap-2',
-        isMe ? 'justify-end' : 'justify-start'
+        isMe ? 'justify-end' : 'justify-start',
+        isLatest && 'animate-fade-in'
       )}
     >
       {!isMe && (
