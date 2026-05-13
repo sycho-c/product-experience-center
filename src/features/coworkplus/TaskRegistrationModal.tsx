@@ -54,6 +54,15 @@ export function TaskRegistrationModal() {
     });
   }, [ocrStatus, modal?.open]);
 
+  const pendingSave = usePendingButton('task-registration.save');
+  const pendingRegisterCustomer = usePendingButton(
+    'task-registration.register-customer'
+  );
+  const pendingConsentRequest = usePendingButton(
+    'task-registration.consent-request'
+  );
+  const pendingLongDesign = usePendingButton('task-registration.long-design');
+
   if (!modal?.open) return null;
 
   const ctx = (modal.data ?? {}) as TaskRegistrationContext;
@@ -94,15 +103,6 @@ export function TaskRegistrationModal() {
 
   const extracting = ocrStatus === 'extracting';
   const completed = ocrStatus === 'completed';
-
-  const pendingSave = usePendingButton('task-registration.save');
-  const pendingRegisterCustomer = usePendingButton(
-    'task-registration.register-customer'
-  );
-  const pendingConsentRequest = usePendingButton(
-    'task-registration.consent-request'
-  );
-  const pendingLongDesign = usePendingButton('task-registration.long-design');
 
   return (
     <div className="absolute inset-0 z-40 flex animate-backdrop-fade bg-black/30 p-6 backdrop-blur-sm">
