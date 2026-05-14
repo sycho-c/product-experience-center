@@ -12,6 +12,7 @@ import {
 import { FileExtBadge } from '@/features/talk/FileExtBadge';
 import { useTalkStore } from '@/features/talk/store';
 import { useUISimStore } from '@/features/ui-simulation/store';
+import { useScenarioStore } from '@/features/scenario/store';
 import { MobileMessageInput } from '@/features/coworkplus/MessageInput';
 import { MobileMenuDropdown } from '@/features/coworkplus/MobileMenuDropdown';
 import { MobileNoticeCard } from '@/features/coworkplus/MobileNoticeCard';
@@ -156,6 +157,11 @@ function ChatListScreen({
     [rawNotices]
   );
 
+  // 현재 시나리오의 고객사 메타로 알림톡 카드의 채널명/이니셜을 자동 매핑.
+  const scenarioCustomer = useScenarioStore((s) => s.scenario?.customer);
+  const channelName = scenarioCustomer?.name ?? 'SK렌터카';
+  const channelInitial = channelName.slice(0, 2);
+
   return (
     <>
       <div className="flex items-center justify-between border-b border-surface-border bg-surface-card px-3 py-2.5">
@@ -188,6 +194,8 @@ function ChatListScreen({
                 title={title}
                 body={body}
                 ctaLabel={cta}
+                channelName={channelName}
+                channelInitial={channelInitial}
                 time={c.time}
                 onTap={() => onTap(c.roomId, c.noticeId)}
               />
