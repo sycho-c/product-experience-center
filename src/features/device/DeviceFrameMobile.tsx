@@ -72,20 +72,21 @@ export function DeviceFrameMobile({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      {/* Label chip + Guest viewer selector */}
-      <div className="flex shrink-0 items-center justify-center gap-1.5 pb-1.5">
-        <span className="inline-flex items-center gap-1 rounded-full bg-surface-card px-2.5 py-0.5 text-[11px] font-medium text-ink-secondary shadow-soft">
-          <Smartphone className="h-3 w-3" />
-          {displayLabel}
-        </span>
-        {!isKakao && <GuestViewerChip activeRoomId={mobileRoomId} />}
-      </div>
-
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden py-1">
-        <div
-          className="@container/device relative flex h-full max-h-[640px] min-h-0 w-auto flex-col overflow-hidden rounded-[36px] border-[6px] border-ink-primary/85 bg-surface-card shadow-elev"
-          style={{ aspectRatio: '9 / 19.5' }}
-        >
+        <div className="flex h-full min-h-0 max-h-[660px] flex-col items-center">
+          {/* Label chip + Guest viewer selector — 디바이스 프레임 바로 위에 붙여 표시 */}
+          <div className="flex shrink-0 items-center justify-center gap-1.5 pb-1.5">
+            <span className="inline-flex items-center gap-1 rounded-full bg-surface-card px-2.5 py-0.5 text-[11px] font-medium text-ink-secondary shadow-soft">
+              <Smartphone className="h-3 w-3" />
+              {displayLabel}
+            </span>
+            {!isKakao && <GuestViewerChip activeRoomId={mobileRoomId} />}
+          </div>
+
+          <div
+            className="@container/device relative flex min-h-0 w-auto flex-1 flex-col overflow-hidden rounded-[36px] border-[6px] border-ink-primary/85 bg-surface-card shadow-elev"
+            style={{ aspectRatio: '9 / 19.5' }}
+          >
           {/* Notch */}
           <div className="relative h-7 shrink-0 bg-surface-card">
             <span className="absolute left-4 top-1.5 text-[11px] font-medium">
@@ -126,6 +127,7 @@ export function DeviceFrameMobile({
           {showRoom && !isKakao && activeRoomId && (
             <BizFormModal roomId={activeRoomId} />
           )}
+          </div>
         </div>
       </div>
     </div>

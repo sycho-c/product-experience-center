@@ -53,8 +53,10 @@ export function AppShell() {
 
       <main
         className={cn(
-          'mx-auto w-full max-w-[1480px] flex-1',
-          isFullscreen ? '' : 'px-6 py-10'
+          'flex-1',
+          isFullscreen
+            ? 'w-full'
+            : 'mx-auto w-full max-w-[1480px] px-6 py-10'
         )}
       >
         <Outlet />

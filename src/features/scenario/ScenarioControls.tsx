@@ -67,7 +67,8 @@ export function ScenarioControls() {
   }, [isActionMode, stepIndex]);
 
   return (
-    <div className="flex items-center gap-6 border-t border-surface-border bg-surface-card px-6 py-3">
+    <div className="border-t border-surface-border bg-surface-card">
+      <div className="mx-auto flex max-w-[1480px] items-center gap-6 px-6 py-3">
       {/* Progress */}
       <div className="flex items-center gap-3 text-xs text-ink-secondary">
         <span className="font-medium text-ink-primary">시나리오 진행 컨트롤</span>
@@ -127,6 +128,7 @@ export function ScenarioControls() {
           <span>단계 설명 보기</span>
           <Switch checked={showStepGuide} onCheckedChange={toggleStepGuide} />
         </label>
+      </div>
       </div>
     </div>
   );
