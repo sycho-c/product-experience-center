@@ -3,11 +3,13 @@ import { immer } from 'zustand/middleware/immer';
 import type { Talk } from '@/types/talk';
 import type {
   BizFormFieldSeed,
-  MobileMenuId,
+  MobileChatListEntry,
   ParticipantSeed,
   RoomEntrySeed,
   UISimSeed,
 } from '@/types/uiaction';
+
+export type { MobileChatListEntry };
 
 export interface ModalState {
   open: boolean;
@@ -30,18 +32,6 @@ export interface MobileNotice {
   consumed?: boolean;
 }
 
-export interface MobileChatListEntry {
-  /** 입장 가능한 방의 id (uiSim.rooms 의 id 와 매칭). 미입장 상태면 별도 placeholder id 가능. */
-  roomId: string;
-  title: string;
-  lastMessage: string;
-  unread: number;
-  time: string;
-  /** 초대 출처 — 'cowork-invite' (Cowork+ 알림톡 초대) | 'kakao-invite' (카카오 오픈채팅 링크) */
-  kind: 'cowork-invite' | 'kakao-invite';
-  /** 연관된 알림 id — 채팅 리스트 탭 시 알림 consume */
-  noticeId?: string;
-}
 
 /** 단체방 비밀 메시지 작성 모드 — TalkInput @멘션 picker 로 진입 */
 export interface MentionState {
@@ -206,7 +196,7 @@ export const useUISimStore = create<UISimState & UISimActions>()(
         s.toasts = [];
         s.rooms = seed?.rooms ? [...seed.rooms] : [];
         s.currentRoomId = seed?.currentRoomId ?? null;
-        s.mobileRoomId = null;
+        s.mobileRoomId = seed?.mobileRoomId ?? null;
         s.mobileViewerParticipantId = seed?.mobileViewerParticipantId ?? null;
         s.mobileMenuOpen = false;
         s.bizformModal = null;
@@ -222,7 +212,7 @@ export const useUISimStore = create<UISimState & UISimActions>()(
             )
           : {};
         s.mobileNotices = [];
-        s.mobileChatList = [];
+        s.mobileChatList = seed?.mobileChatList ? [...seed.mobileChatList] : [];
         s.highlight = null;
         s.ocrStatusByModal = {};
         s.multiSelect = null;

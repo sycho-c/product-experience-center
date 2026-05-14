@@ -20,6 +20,7 @@ export async function listScenarios(): Promise<ScenarioSummary[]> {
     summary: s.summary,
     category: s.category,
     customer: s.customer,
+    tag: s.tag,
     difficulty: s.difficulty,
     durationMinutes: s.durationMinutes,
     devices: s.devices,

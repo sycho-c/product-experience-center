@@ -19,6 +19,9 @@ const CATEGORY_ORDER: Category[] = [
   'industry',
 ];
 
+/** 고객 필터 칩 노출 순서. 등재되지 않은 고객은 ko-localeCompare 로 뒤에 정렬. */
+const CUSTOMER_ORDER: string[] = ['hana', 'woori', 'gaon', 'sk-rental'];
+
 function isCategory(value: string | null): value is Category {
   return (
     value === 'customer-case' ||
@@ -32,9 +35,11 @@ export function ScenarioListRoute() {
   const [scenarios, setScenarios] = useState<ScenarioSummary[] | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get('category');
+  const customerParam = searchParams.get('customer');
   const activeCategory: Category | null = isCategory(categoryParam)
     ? categoryParam
     : null;
+  const activeCustomer: string | null = customerParam ?? null;
 
   useEffect(() => {
     listScenarios().then(setScenarios).catch(() => setScenarios([]));
@@ -46,35 +51,83 @@ export function ScenarioListRoute() {
     return CATEGORY_ORDER.filter((c) => present.has(c));
   }, [scenarios]);
 
-  const counts = useMemo(() => {
+  const availableCustomers = useMemo(() => {
+    if (!scenarios) return [];
+    const seen = new Map<string, { id: string; name: string }>();
+    for (const s of scenarios) {
+      if (s.customer && !seen.has(s.customer.id)) {
+        seen.set(s.customer.id, { id: s.customer.id, name: s.customer.name });
+      }
+    }
+    const orderIndex = (id: string) => {
+      const i = CUSTOMER_ORDER.indexOf(id);
+      return i === -1 ? CUSTOMER_ORDER.length : i;
+    };
+    return Array.from(seen.values()).sort((a, b) => {
+      const oa = orderIndex(a.id);
+      const ob = orderIndex(b.id);
+      if (oa !== ob) return oa - ob;
+      return a.name.localeCompare(b.name, 'ko');
+    });
+  }, [scenarios]);
+
+  const categoryCounts = useMemo(() => {
     const result: Partial<Record<Category, number>> = {};
-    for (const s of scenarios ?? []) {
+    const base = activeCustomer
+      ? (scenarios ?? []).filter((s) => s.customer?.id === activeCustomer)
+      : (scenarios ?? []);
+    for (const s of base) {
       result[s.category] = (result[s.category] ?? 0) + 1;
     }
     return result;
-  }, [scenarios]);
+  }, [scenarios, activeCustomer]);
+
+  const customerCounts = useMemo(() => {
+    const result: Record<string, number> = {};
+    const base = activeCategory
+      ? (scenarios ?? []).filter((s) => s.category === activeCategory)
+      : (scenarios ?? []);
+    for (const s of base) {
+      if (s.customer) {
+        result[s.customer.id] = (result[s.customer.id] ?? 0) + 1;
+      }
+    }
+    return result;
+  }, [scenarios, activeCategory]);
 
   const filtered = useMemo(() => {
     if (!scenarios) return null;
-    if (!activeCategory) return scenarios;
-    return scenarios.filter((s) => s.category === activeCategory);
-  }, [scenarios, activeCategory]);
+    return scenarios.filter((s) => {
+      if (activeCategory && s.category !== activeCategory) return false;
+      if (activeCustomer && s.customer?.id !== activeCustomer) return false;
+      return true;
+    });
+  }, [scenarios, activeCategory, activeCustomer]);
 
-  const handleSelect = (next: Category | null) => {
-    if (!next) {
-      const sp = new URLSearchParams(searchParams);
-      sp.delete('category');
-      setSearchParams(sp, { replace: true });
-      return;
-    }
-    if (activeCategory === next) {
-      const sp = new URLSearchParams(searchParams);
-      sp.delete('category');
-      setSearchParams(sp, { replace: true });
-      return;
-    }
+  const totalForCategoryRow = activeCustomer
+    ? (scenarios ?? []).filter((s) => s.customer?.id === activeCustomer).length
+    : scenarios?.length ?? 0;
+  const totalForCustomerRow = activeCategory
+    ? (scenarios ?? []).filter((s) => s.category === activeCategory).length
+    : scenarios?.length ?? 0;
+
+  const handleSelectCategory = (next: Category | null) => {
     const sp = new URLSearchParams(searchParams);
-    sp.set('category', next);
+    if (!next || activeCategory === next) {
+      sp.delete('category');
+    } else {
+      sp.set('category', next);
+    }
+    setSearchParams(sp, { replace: true });
+  };
+
+  const handleSelectCustomer = (nextId: string | null) => {
+    const sp = new URLSearchParams(searchParams);
+    if (!nextId || activeCustomer === nextId) {
+      sp.delete('customer');
+    } else {
+      sp.set('customer', nextId);
+    }
     setSearchParams(sp, { replace: true });
   };
 
@@ -88,23 +141,45 @@ export function ScenarioListRoute() {
       </header>
 
       {scenarios !== null && scenarios.length > 0 && (
-        <div className="mb-6 flex flex-wrap items-center gap-2">
-          <FilterChip
-            label="전체"
-            count={scenarios.length}
-            active={activeCategory === null}
-            onClick={() => handleSelect(null)}
-          />
-          {availableCategories.map((c) => (
+        <div className="mb-6 space-y-3">
+          <FilterRow label="카테고리">
             <FilterChip
-              key={c}
-              label={CATEGORY_LABEL[c]}
-              count={counts[c] ?? 0}
-              active={activeCategory === c}
-              variant={CATEGORY_VARIANT[c]}
-              onClick={() => handleSelect(c)}
+              label="전체"
+              count={totalForCategoryRow}
+              active={activeCategory === null}
+              onClick={() => handleSelectCategory(null)}
             />
-          ))}
+            {availableCategories.map((c) => (
+              <FilterChip
+                key={c}
+                label={CATEGORY_LABEL[c]}
+                count={categoryCounts[c] ?? 0}
+                active={activeCategory === c}
+                variant={CATEGORY_VARIANT[c]}
+                onClick={() => handleSelectCategory(c)}
+              />
+            ))}
+          </FilterRow>
+
+          {availableCustomers.length > 0 && (
+            <FilterRow label="고객사">
+              <FilterChip
+                label="전체"
+                count={totalForCustomerRow}
+                active={activeCustomer === null}
+                onClick={() => handleSelectCustomer(null)}
+              />
+              {availableCustomers.map((c) => (
+                <FilterChip
+                  key={c.id}
+                  label={c.name}
+                  count={customerCounts[c.id] ?? 0}
+                  active={activeCustomer === c.id}
+                  onClick={() => handleSelectCustomer(c.id)}
+                />
+              ))}
+            </FilterRow>
+          )}
         </div>
       )}
 
@@ -119,7 +194,7 @@ export function ScenarioListRoute() {
         </div>
       ) : filtered && filtered.length === 0 ? (
         <p className="rounded-xl border border-dashed border-surface-border bg-surface-card px-6 py-10 text-center text-sm text-ink-secondary">
-          해당 카테고리에 등록된 시나리오가 없습니다.
+          선택한 조건에 맞는 시나리오가 없습니다.
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -128,6 +203,20 @@ export function ScenarioListRoute() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+interface FilterRowProps {
+  label: string;
+  children: React.ReactNode;
+}
+
+function FilterRow({ label, children }: FilterRowProps) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="mr-1 text-xs font-medium text-ink-muted">{label}</span>
+      {children}
     </div>
   );
 }

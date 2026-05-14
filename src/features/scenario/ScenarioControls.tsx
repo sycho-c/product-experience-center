@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   ChevronsLeft,
   ChevronsRight,
@@ -35,6 +36,35 @@ export function ScenarioControls() {
   const stepActionTotal = currentStep?.actions?.length ?? 0;
   const isActionMode = stepActionTotal > 0;
   const progress = total > 0 ? Math.round(((stepIndex + 1) / total) * 100) : 0;
+
+  // 좌우 방향키로 이전/다음 단계 (액션 모드면 액션 단위). 입력 필드 포커스 시 무시.
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const tag = target.tagName;
+        if (
+          tag === 'INPUT' ||
+          tag === 'TEXTAREA' ||
+          tag === 'SELECT' ||
+          target.isContentEditable
+        )
+          return;
+      }
+      e.preventDefault();
+      if (e.key === 'ArrowLeft') {
+        if (isActionMode) prevAction();
+        else seekStep(stepIndex - 1);
+      } else {
+        if (isActionMode) nextAction();
+        else seekStep(stepIndex + 1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isActionMode, stepIndex]);
 
   return (
     <div className="flex items-center gap-6 border-t border-surface-border bg-surface-card px-6 py-3">

@@ -444,10 +444,22 @@ export const ParticipantSeedSchema = z.object({
   online: z.boolean().optional(),
 });
 
+const MobileChatListEntrySchema = z.object({
+  roomId: z.string(),
+  title: z.string(),
+  lastMessage: z.string(),
+  unread: z.number().int().nonnegative(),
+  time: z.string(),
+  kind: z.enum(['cowork-invite', 'kakao-invite']),
+  noticeId: z.string().optional(),
+});
+
 export const UISimSeedSchema = z.object({
   rooms: z.array(RoomEntrySeedSchema).optional(),
   currentRoomId: z.string().optional(),
+  mobileRoomId: z.string().optional(),
   mobileViewerParticipantId: z.string().optional(),
+  mobileChatList: z.array(MobileChatListEntrySchema).optional(),
   roomTalks: z.record(z.string(), z.array(TalkSchema)).optional(),
   participants: z.record(z.string(), z.array(ParticipantSeedSchema)).optional(),
   inputs: z.record(z.string(), z.string()).optional(),
@@ -501,6 +513,7 @@ export const ScenarioSchema = z.object({
       logoUrl: z.string().optional(),
     })
     .optional(),
+  tag: z.string().optional(),
   difficulty: z.enum(['easy', 'medium', 'hard']),
   durationMinutes: z.number().positive(),
   devices: z.array(DeviceKindSchema),

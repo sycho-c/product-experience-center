@@ -78,6 +78,23 @@ const SEED: ExternalUser[] = [
     manager: '강승희',
     type: 'VIP',
   },
+  {
+    id: 'eu-park-chanho',
+    name: '박찬호',
+    phone: '010-7766-5544',
+    email: 'ceo@hansol-trade.co.kr',
+    group: '(주)한솔무역',
+    manager: '정민수',
+    type: 'VIP',
+  },
+  {
+    id: 'eu-lee-sujeong',
+    name: '이수정',
+    phone: '010-3344-9988',
+    email: 'sj.lee@mirae-logis.co.kr',
+    group: '미래물류',
+    manager: '김주임',
+  },
 ];
 
 interface ExternalUsersState {

@@ -43,6 +43,8 @@ export interface ScenarioMeta {
   summary?: string;
   category: ScenarioCategory;
   customer?: ScenarioCustomer;
+  /** 카테고리 칩 옆에 함께 노출되는 부가 라벨 (예: '기능', '흐름'). */
+  tag?: string;
   difficulty: ScenarioDifficulty;
   durationMinutes: number;
   devices: DeviceKind[];

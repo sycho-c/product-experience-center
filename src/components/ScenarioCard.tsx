@@ -28,6 +28,11 @@ const DIFFICULTY_LABEL: Record<ScenarioSummary['difficulty'], string> = {
   hard: '난이도 상',
 };
 
+const TAG_VARIANT: Record<string, BadgeProps['variant']> = {
+  기능: 'success',
+  흐름: 'warning',
+};
+
 interface ScenarioCardProps {
   scenario: ScenarioSummary;
   className?: string;
@@ -47,10 +52,17 @@ export function ScenarioCard({ scenario, className }: ScenarioCardProps) {
       )}
     >
       <Card className="h-full p-5 transition-shadow group-hover:shadow-elev">
-        <div className="flex items-center justify-between">
-          <Badge variant={CATEGORY_VARIANT[scenario.category]}>
-            {CATEGORY_LABEL[scenario.category]}
-          </Badge>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            <Badge variant={CATEGORY_VARIANT[scenario.category]}>
+              {CATEGORY_LABEL[scenario.category]}
+            </Badge>
+            {scenario.tag && (
+              <Badge variant={TAG_VARIANT[scenario.tag] ?? 'outline'}>
+                {scenario.tag}
+              </Badge>
+            )}
+          </div>
           <span className="text-xs text-ink-muted">
             {DIFFICULTY_LABEL[scenario.difficulty]}
           </span>

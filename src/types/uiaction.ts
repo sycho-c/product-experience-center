@@ -20,11 +20,28 @@ export interface ParticipantSeed {
   online?: boolean;
 }
 
+export interface MobileChatListEntry {
+  /** 입장 가능한 방의 id (uiSim.rooms 의 id 와 매칭). 미입장 상태면 별도 placeholder id 가능. */
+  roomId: string;
+  title: string;
+  lastMessage: string;
+  unread: number;
+  time: string;
+  /** 초대 출처 — 'cowork-invite' (Cowork+ 알림톡 초대) | 'kakao-invite' (카카오 오픈채팅 링크) */
+  kind: 'cowork-invite' | 'kakao-invite';
+  /** 연관된 알림 id — 채팅 리스트 탭 시 알림 consume */
+  noticeId?: string;
+}
+
 export interface UISimSeed {
   rooms?: RoomEntrySeed[];
   currentRoomId?: string;
+  /** Mobile (Guest) 측에서 이미 입장 중인 방 id — null/생략 시 채팅 목록 화면. */
+  mobileRoomId?: string;
   /** Mobile (Guest) 측 디바이스가 어느 참여자 시점으로 보고 있는지 (단체방 비밀 메시지) */
   mobileViewerParticipantId?: string;
+  /** Mobile (Guest) 채팅 리스트 사전 항목들 (대기 중인 초대 등). */
+  mobileChatList?: MobileChatListEntry[];
   roomTalks?: Record<string, Talk[]>;
   participants?: Record<string, ParticipantSeed[]>;
   inputs?: Record<string, string>;
