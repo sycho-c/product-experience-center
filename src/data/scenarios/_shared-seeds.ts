@@ -460,6 +460,211 @@ export function createWooriSeed(opts: WooriSeedOpts = {}): UISimSeed {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// 가온전선 (Gaon Cable) 미니 시나리오 공통 상수
+// ─────────────────────────────────────────────────────────────────────
+//
+// 영업팀 강승희가 미우케이블 박대표를 협업채널로 응대한다.
+// 메인 시나리오(gaon-cable-sales-bridge) 와 동일 인물/방/파일 fixture
+// 를 공유해 후속 feature/flow 가 일관된 컨텍스트를 가진다.
+
+export const GAON_ROOM_ID = 'gn-room';
+export const GAON_KAKAO_ROOM_ID = 'gn-kakao-room';
+
+export const GAON_HOST_ID = 'gn-host';
+export const GAON_PARK_ID = 'gn-park';
+export const GAON_HOST_NAME = '강승희';
+export const GAON_PARK_NAME = '박대표';
+export const GAON_HOST_DISPLAY = `${GAON_HOST_NAME}(영업팀)`;
+export const GAON_PARK_DISPLAY = `${GAON_PARK_NAME}(미우케이블)`;
+
+// 자재번호 — 통합 검색 데모 키워드
+export const GAON_MATERIAL_CODE = 'CC-22-150SQ';
+
+// 메시지 ID — 후속 액션이 참조
+export const GAON_PARK_SPEC_MSG_ID = 'gn-park-spec';
+export const GAON_HOST_REPLY_MSG_ID = 'gn-host-reply';
+export const GAON_HOST_QUOTE_MSG_ID = 'gn-host-quote';
+export const GAON_HOST_REUSE_MSG_ID = 'gn-host-reuse';
+export const GAON_TASK_ID = 'gn-task-quote';
+
+// 파일 fixture (재사용 가능)
+export const GAON_SPEC_FILE = {
+  name: '미우케이블_9월_요청사양서.pdf',
+  size: 248320,
+  mime: 'application/pdf',
+};
+export const GAON_QUOTE_FILE = {
+  name: `가온_${GAON_MATERIAL_CODE}_견적서_v1.xlsx`,
+  size: 64512,
+  mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+};
+export const GAON_DRAWING_FILE = {
+  name: `${GAON_MATERIAL_CODE}_도면.dwg`,
+  size: 1342176,
+  mime: 'application/acad',
+};
+export const GAON_PAST_QUOTE_FILE = {
+  name: `가온_${GAON_MATERIAL_CODE}_견적서_v0.xlsx`,
+  size: 58980,
+  mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+};
+
+const gaonParticipants: ParticipantSeed[] = [
+  {
+    id: GAON_HOST_ID,
+    displayName: GAON_HOST_DISPLAY,
+    external: false,
+    isHost: true,
+    device: 'PC',
+  },
+  {
+    id: GAON_PARK_ID,
+    displayName: GAON_PARK_DISPLAY,
+    external: true,
+    device: 'Mobile',
+  },
+];
+
+interface GaonSeedOpts {
+  /** 협업 채널 + 두 참여자가 입장된 상태로 시작 (사양서 메시지 없음). 기본 false. */
+  includeChannelSetup?: boolean;
+  /** 박대표 사양서 PDF 메시지까지 포함된 상태로 시작. 기본 false. */
+  includeSpecMessage?: boolean;
+  /** 강승희의 견적서·도면 회신 + 할 일 chip 완료까지 포함된 상태. 기본 false. */
+  includeQuoteSent?: boolean;
+}
+
+/**
+ * 가온전선 미니 시나리오 공통 seed.
+ *
+ * 옵션에 따라 채널/메시지가 사전 셋업된 상태로 시작할 수 있다.
+ * 메인 시나리오와 동일한 인물·방·파일 fixture 를 공유한다.
+ */
+export function createGaonSeed(opts: GaonSeedOpts = {}): UISimSeed {
+  const {
+    includeChannelSetup = false,
+    includeSpecMessage = false,
+    includeQuoteSent = false,
+  } = opts;
+
+  const anyChannel = includeChannelSetup || includeSpecMessage || includeQuoteSent;
+  if (!anyChannel) {
+    return { mobileViewerParticipantId: GAON_PARK_ID };
+  }
+
+  const talks: Talk[] = [
+    {
+      id: 'gn-seed-sys-host',
+      stepId: 'seed',
+      type: 'system',
+      from: { role: 'system' },
+      to: { broadcast: true },
+      device: 'all',
+      content: `입장: ${GAON_HOST_NAME} (가온전선 영업팀)`,
+      offsetMs: 0,
+    },
+    {
+      id: 'gn-seed-sys-park',
+      stepId: 'seed',
+      type: 'system',
+      from: { role: 'system' },
+      to: { broadcast: true },
+      device: 'all',
+      content: `입장: ${GAON_PARK_NAME} (미우케이블)`,
+      offsetMs: 0,
+    },
+  ];
+
+  if (includeSpecMessage || includeQuoteSent) {
+    talks.push({
+      id: GAON_PARK_SPEC_MSG_ID,
+      stepId: 'seed',
+      type: 'message',
+      from: {
+        role: 'customer',
+        userId: GAON_PARK_ID,
+        displayName: GAON_PARK_NAME,
+      },
+      to: { broadcast: true },
+      device: 'all',
+      content: '9월 발주 사양서입니다. 확인 부탁드려요.',
+      attachments: [GAON_SPEC_FILE],
+      offsetMs: 0,
+    });
+  }
+
+  if (includeQuoteSent) {
+    talks.push(
+      {
+        id: GAON_HOST_REPLY_MSG_ID,
+        stepId: 'seed',
+        type: 'message',
+        from: {
+          role: 'me',
+          userId: GAON_HOST_ID,
+          displayName: GAON_HOST_NAME,
+        },
+        to: { broadcast: true },
+        device: 'all',
+        content: '사양 확인했습니다. 오늘 오후 4시까지 견적 회신드리겠습니다.',
+        offsetMs: 0,
+        taskChip: {
+          taskId: GAON_TASK_ID,
+          title: '9월 출하 견적 회신',
+          status: '완료',
+        },
+      },
+      {
+        id: GAON_HOST_QUOTE_MSG_ID,
+        stepId: 'seed',
+        type: 'message',
+        from: {
+          role: 'me',
+          userId: GAON_HOST_ID,
+          displayName: GAON_HOST_NAME,
+        },
+        to: { broadcast: true },
+        device: 'all',
+        content: `견적서와 도면 함께 전달드립니다. 자재코드 ${GAON_MATERIAL_CODE} 기준입니다.`,
+        attachments: [GAON_QUOTE_FILE, GAON_DRAWING_FILE],
+        offsetMs: 0,
+      }
+    );
+  }
+
+  const lastTalk = talks[talks.length - 1];
+  const lastPreview = lastTalk?.content ?? '미우케이블 협업 채널';
+
+  return {
+    rooms: [
+      {
+        id: GAON_ROOM_ID,
+        title: '미우케이블 박대표 ↔ 가온 영업',
+        participantCount: gaonParticipants.length,
+        preview: lastPreview,
+        device: 'PC',
+        timestamp: '오늘',
+      },
+    ],
+    currentRoomId: GAON_ROOM_ID,
+    mobileRoomId: GAON_ROOM_ID,
+    mobileViewerParticipantId: GAON_PARK_ID,
+    mobileChatList: [
+      {
+        roomId: GAON_ROOM_ID,
+        title: '미우케이블 박대표 ↔ 가온 영업',
+        lastMessage: lastPreview,
+        unread: 0,
+        time: '오늘',
+        kind: 'cowork-invite',
+      },
+    ],
+    participants: { [GAON_ROOM_ID]: gaonParticipants },
+    roomTalks: { [GAON_ROOM_ID]: talks },
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // SK렌터카 법인폰 시나리오 공통 seed
 // ─────────────────────────────────────────────────────────────────────
 //

@@ -5,6 +5,11 @@ import { meta as wooriMeta } from './woori-credit.meta';
 import { meta as aiMeta } from './ai-smart-assist.meta';
 import { meta as nextGenMeta } from './next-gen-comm.meta';
 import { meta as gaonMeta } from './gaon-cable-sales-bridge.meta';
+import { meta as gaonKakaoChannelInviteMeta } from './gaon-feature-kakao-channel-invite.meta';
+import { meta as gaonMultiFileMessageMeta } from './gaon-feature-multi-file-message.meta';
+import { meta as gaonTalkSearchByMaterialMeta } from './gaon-feature-talk-search-by-material.meta';
+import { meta as gaonFileLibraryReuseMeta } from './gaon-feature-file-library-reuse.meta';
+import { meta as gaonFlowQuoteCycleMeta } from './gaon-flow-quote-cycle.meta';
 import { meta as skRentalMeta } from './sk-rental-sales-bridge.meta';
 import { meta as skAlimtalkInviteMeta } from './sk-feature-alimtalk-invite.meta';
 import { meta as skFcmPushInboundMeta } from './sk-feature-fcm-push-inbound.meta';
@@ -110,6 +115,26 @@ export const scenarioRegistry: ScenarioRegistryEntry[] = [
     load: lazy(() => import('./woori-flow-bizform-cycle')),
   },
   { ...gaonMeta, load: lazy(() => import('./gaon-cable-sales-bridge')) },
+  {
+    ...gaonKakaoChannelInviteMeta,
+    load: lazy(() => import('./gaon-feature-kakao-channel-invite')),
+  },
+  {
+    ...gaonMultiFileMessageMeta,
+    load: lazy(() => import('./gaon-feature-multi-file-message')),
+  },
+  {
+    ...gaonTalkSearchByMaterialMeta,
+    load: lazy(() => import('./gaon-feature-talk-search-by-material')),
+  },
+  {
+    ...gaonFileLibraryReuseMeta,
+    load: lazy(() => import('./gaon-feature-file-library-reuse')),
+  },
+  {
+    ...gaonFlowQuoteCycleMeta,
+    load: lazy(() => import('./gaon-flow-quote-cycle')),
+  },
   {
     ...skRentalMeta,
     load: lazy(() => import('./sk-rental-sales-bridge')),
