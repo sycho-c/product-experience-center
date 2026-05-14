@@ -21,7 +21,7 @@ const stepActions: UIAction[][] = [
       message: '내 고객 1명 표시 — 박찬호 (한솔무역) · 동료 김주임의 고객은 권한 분리로 미노출',
       tone: 'info',
       description:
-        'GET /biz/members/me 로 사용자 식별 후 findAllMyPartners 로 본인 고객만 응답합니다.',
+        '세션 기반으로 사용자를 식별한 뒤 본인이 등록한 고객만 응답합니다.',
     },
   ],
   [
@@ -36,7 +36,7 @@ const stepActions: UIAction[][] = [
       message: '권한 없음 — 이수정 고객은 김주임 담당. 본인 고객만 조회됩니다.',
       tone: 'warning',
       description:
-        '백엔드 mypartners API 가 자체 필터링을 수행하므로 다른 사원 고객은 검색되지 않습니다.',
+        '서버에서 권한별 필터링을 자동 수행하므로 다른 사원 고객은 검색되지 않습니다.',
     },
   ],
 ];
@@ -47,7 +47,7 @@ const stepTitles = [
 ];
 const stepDescriptions = [
   '정대리는 영업사원 권한으로 로그인되어 있어 외부 사용자 화면에서 본인이 등록한 고객만 보입니다.',
-  '동료 김주임의 고객 이수정을 검색해도 본인 권한 밖이라 결과에 나오지 않습니다. (mypartners API 가 BFF 측에서 권한 분리 수행)',
+  '동료 김주임의 고객 이수정을 검색해도 본인 권한 밖이라 결과에 나오지 않습니다. 서버에서 권한 분리가 자동 수행됩니다.',
 ];
 
 const steps: Step[] = stepActions.map((actions, i) => ({
@@ -62,7 +62,7 @@ const steps: Step[] = stepActions.map((actions, i) => ({
 
 const scenario: Scenario = {
   ...meta,
-  goals: ['영업사원 본인 고객만 노출되도록 BFF 권한 분리 시연'],
+  goals: ['영업사원 본인 고객만 노출되도록 서버 권한 분리 시연'],
   seed: createSkRentalSeed({ includePostInvite: true }),
   steps,
 };

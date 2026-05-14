@@ -32,7 +32,7 @@ const stepActions: UIAction[][] = [
     },
     {
       kind: 'show_toast',
-      message: '2차 인증 — BiometricPrompt (지문)',
+      message: '2차 인증 — 생체 인증 (지문)',
       tone: 'info',
       description: '지문 인식으로 본인 확인.',
     },

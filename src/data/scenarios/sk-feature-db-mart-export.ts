@@ -24,13 +24,13 @@ const stepActions: UIAction[][] = [
         '오늘 응대 32건 · 신규 고객 5명 · 메시지 482건 · 파일 78건 · 사업자 메타 5건 — DB Mart 적재 완료',
       tone: 'success',
       description:
-        'TicketHistoryController 의 상담이력 API 를 통해 Action Power 가 DB Mart 에 일괄 적재합니다.',
+        '상담이력 API 를 통해 Action Power 가 DB Mart 에 일괄 적재합니다.',
     },
     {
       kind: 'append_system_message',
       roomId: SK_RENTAL_ROOM_ID,
       content:
-        '✓ 1일 마감 · 외부 채널(개인 카톡) 사용 0건 · GET /skdirect/channels · /messages/history · /partners API 정상',
+        '✓ 1일 마감 · 외부 채널(개인 카톡) 사용 0건 · 대화방·메시지·고객 정보 API 정상',
       description:
         '모든 대화·파일·고객 메타가 SK렌터카 시스템 자산이 되었음을 시스템 메시지로 정리합니다.',
     },

@@ -46,7 +46,7 @@ const stepActions: UIAction[][] = [
       message: '메타 입력 완료 — ⓘ 배지 해제 · DB Mart 메타 적재',
       tone: 'success',
       description:
-        'REQUIRED_METADATA_KEYS 가 모두 채워지면 isComplete = true 가 되어 배지가 사라집니다.',
+        '필수 메타데이터(사업자번호·고객구분) 가 모두 채워지면 배지가 사라집니다.',
     },
   ],
 ];
@@ -57,7 +57,7 @@ const stepTitles = [
 ];
 const stepDescriptions = [
   '연락처 동기화로 들어온 고객은 사업자번호/고객구분이 비어있어 프로필 우하단에 ⓘ 빨간 배지가 표시되어 즉시 인지 가능합니다.',
-  '박찬호 카드를 열어 사업자번호·고객구분을 입력하면 Yup 필수 검증을 통과하고 배지가 해제되며 DB Mart 에 메타가 적재됩니다.',
+  '박찬호 카드를 열어 사업자번호·고객구분을 입력하면 필수 검증을 통과하고 배지가 해제되며 DB Mart 에 메타가 적재됩니다.',
 ];
 
 const steps: Step[] = stepActions.map((actions, i) => ({

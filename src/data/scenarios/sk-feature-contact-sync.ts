@@ -19,7 +19,7 @@ const stepActions: UIAction[][] = [
     },
     {
       kind: 'show_toast',
-      message: 'AndroidBridge.execute("getContacts") · 연락처 47건 조회',
+      message: '네이티브 브릿지로 안드로이드 연락처 47건 조회',
       tone: 'info',
       description:
         '하이브리드 앱이 네이티브 브릿지로 안드로이드 연락처를 읽어옵니다.',
@@ -39,7 +39,7 @@ const stepActions: UIAction[][] = [
         '동기화 완료 — 신규 32건 등록 · 영업사원-파트너 관계 32건 연결 (DB Mart 적재)',
       tone: 'success',
       description:
-        'POST /customadapter/skdirect/sync-contacts 호출 후 결과를 토스트로 안내합니다.',
+        '동기화 API 호출 후 결과를 토스트로 안내합니다.',
     },
   ],
 ];
@@ -49,7 +49,7 @@ const stepTitles = [
   '동기화 컨펌 → 47건 일괄 등록',
 ];
 const stepDescriptions = [
-  '법인폰 SalesBridge 앱의 "내 고객" 화면에서 동기화 아이콘을 누르면 AndroidBridge 로 연락처를 읽어옵니다.',
+  '법인폰 SalesBridge 앱의 "내 고객" 화면에서 동기화 아이콘을 누르면 네이티브 브릿지로 안드로이드 연락처를 읽어옵니다.',
   '47건의 연락처를 전화번호 기준으로 비교해 신규 32건은 파트너로 등록하고, 영업사원-파트너 관계까지 자동 연결합니다.',
 ];
 

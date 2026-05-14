@@ -45,7 +45,7 @@ const stepActions: UIAction[][] = [
       message: `이관 완료 — 고객 12명 · 대화방 12개 · 파일 78건 · DB Mart 이력 100% 승계`,
       tone: 'success',
       description:
-        'partnerRelationRepository.register 가 12회 호출되어 정대리에게 관계가 연결됩니다.',
+        '담당자 매핑 12건이 자동 재연결되어 정대리에게 모든 고객 관계가 연결됩니다.',
     },
     {
       kind: 'append_system_message',

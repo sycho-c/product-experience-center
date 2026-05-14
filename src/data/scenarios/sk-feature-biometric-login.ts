@@ -31,24 +31,24 @@ const stepActions: UIAction[][] = [
   [
     {
       kind: 'show_toast',
-      message: 'biometricUtil.checkBiometricAvailability() · 지문/얼굴 등록 확인',
+      message: '디바이스 지문 / 얼굴 등록 여부 확인',
       tone: 'info',
       description:
-        'AndroidBridge 로 디바이스 생체 등록 여부를 5초 타임아웃 내에 확인합니다.',
+        '디바이스의 생체 등록 여부를 5초 이내로 확인합니다.',
     },
     {
       kind: 'show_toast',
       message: '2차 인증 — 생체인증으로 본인 확인 (지문 인식)',
       tone: 'info',
       description:
-        'BiometricPrompt 가 표시되어 사용자가 지문 또는 얼굴로 본인 확인을 수행합니다.',
+        '생체 인증 다이얼로그가 표시되어 사용자가 지문 또는 얼굴로 본인 확인을 수행합니다.',
     },
     {
       kind: 'show_toast',
       message: '인증 완료 · 로그인 유지 30일 (앱 스토리지에 토큰 보관)',
       tone: 'success',
       description:
-        '생체 인증 성공 후 access_token / client_id 가 앱 스토리지에 30일 보관됩니다.',
+        '생체 인증 성공 후 로그인 정보가 앱에 30일 보관됩니다.',
     },
   ],
 ];
@@ -59,7 +59,7 @@ const stepTitles = [
 ];
 const stepDescriptions = [
   '정대리가 사번 ID 와 비밀번호로 1차 인증을 통과합니다.',
-  'BiometricPrompt 가 지문 또는 얼굴로 2차 인증을 요청하고, 성공 시 토큰이 30일 보관되어 자동 로그인됩니다.',
+  '생체 인증 다이얼로그가 지문 또는 얼굴로 2차 인증을 요청하고, 성공 시 인증 정보가 30일 보관되어 자동 로그인됩니다.',
 ];
 
 const steps: Step[] = stepActions.map((actions, i) => ({
