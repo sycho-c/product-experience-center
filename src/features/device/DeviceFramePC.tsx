@@ -23,12 +23,14 @@ export function DeviceFramePC({
           {label}
         </span>
       </div>
-      <div className="flex-1 min-h-0 overflow-hidden rounded-lg border border-surface-border bg-surface-card shadow-soft @container/device">
-        {mode === 'before' ? (
-          <KakaoPCShell />
-        ) : (
-          <CoworkShell emptyState={emptyState} />
-        )}
+      <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden py-1">
+        <div className="@container/device flex h-full max-h-[640px] min-h-0 w-full flex-col overflow-hidden rounded-lg border border-surface-border bg-surface-card shadow-soft">
+          {mode === 'before' ? (
+            <KakaoPCShell />
+          ) : (
+            <CoworkShell emptyState={emptyState} />
+          )}
+        </div>
       </div>
     </div>
   );
