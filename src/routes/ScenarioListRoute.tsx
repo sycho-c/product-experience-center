@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  CATEGORY_LABEL,
-  CATEGORY_VARIANT,
-  ScenarioCard,
-} from '@/components/ScenarioCard';
+import { ScenarioCard } from '@/components/ScenarioCard';
 import { Badge } from '@/components/ui/badge';
+import { CATEGORY_LABEL, CATEGORY_VARIANT } from '@/lib/scenario-display';
 import { listScenarios } from '@/lib/mock-api';
 import type { ScenarioSummary } from '@/types/scenario';
 import { cn } from '@/lib/utils';

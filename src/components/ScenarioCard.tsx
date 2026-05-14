@@ -1,36 +1,15 @@
 import { Link } from 'react-router-dom';
 import { Monitor, Smartphone } from 'lucide-react';
-import { Badge, type BadgeProps } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import type { ScenarioSummary } from '@/types/scenario';
 import { cn } from '@/lib/utils';
-
-export const CATEGORY_LABEL: Record<ScenarioSummary['category'], string> = {
-  'customer-case': '고객 사례',
-  feature: '제품 기능',
-  'future-concept': '컨셉 기능',
-  industry: '업종별',
-};
-
-export const CATEGORY_VARIANT: Record<
-  ScenarioSummary['category'],
-  BadgeProps['variant']
-> = {
-  'customer-case': 'brand',
-  feature: 'success',
-  'future-concept': 'warning',
-  industry: 'neutral',
-};
+import { CATEGORY_LABEL, CATEGORY_VARIANT, TAG_VARIANT } from '@/lib/scenario-display';
 
 const DIFFICULTY_LABEL: Record<ScenarioSummary['difficulty'], string> = {
   easy: '난이도 하',
   medium: '난이도 중',
   hard: '난이도 상',
-};
-
-const TAG_VARIANT: Record<string, BadgeProps['variant']> = {
-  기능: 'success',
-  흐름: 'warning',
 };
 
 interface ScenarioCardProps {

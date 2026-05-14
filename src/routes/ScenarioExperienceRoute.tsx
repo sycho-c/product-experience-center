@@ -7,6 +7,8 @@ import { CurrentActionCaption } from '@/features/scenario/CurrentActionCaption';
 import { DeviceFramePC } from '@/features/device/DeviceFramePC';
 import { DeviceFrameMobile } from '@/features/device/DeviceFrameMobile';
 import { BeforeAfterToggle } from '@/features/comparison/BeforeAfterToggle';
+import { Badge } from '@/components/ui/badge';
+import { TAG_VARIANT } from '@/lib/scenario-display';
 import {
   selectActiveSteps,
   useScenarioStore,
@@ -65,9 +67,16 @@ export function ScenarioExperienceRoute() {
             <BeforeAfterToggle />
             {scenario && (
               <div>
-                <h2 className="text-lg font-bold text-ink-primary">
-                  {scenario.title}
-                </h2>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-lg font-bold text-ink-primary">
+                    {scenario.title}
+                  </h2>
+                  {scenario.tag && (
+                    <Badge variant={TAG_VARIANT[scenario.tag] ?? 'outline'}>
+                      {scenario.tag}
+                    </Badge>
+                  )}
+                </div>
                 {scenario.summary && (
                   <p className="mt-1 text-xs text-ink-secondary leading-relaxed">
                     {scenario.summary}

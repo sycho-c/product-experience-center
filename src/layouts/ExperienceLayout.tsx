@@ -2,6 +2,7 @@ import { ChevronLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { CATEGORY_LABEL, CATEGORY_VARIANT, TAG_VARIANT } from '@/lib/scenario-display';
 import { cn } from '@/lib/utils';
 import type { Scenario } from '@/types/scenario';
 
@@ -46,9 +47,14 @@ export function ExperienceLayout({
             </h1>
             {scenario && (
               <>
-                <Badge variant="brand">
-                  {labelOf(scenario.category)}
+                <Badge variant={CATEGORY_VARIANT[scenario.category]}>
+                  {CATEGORY_LABEL[scenario.category]}
                 </Badge>
+                {scenario.tag && (
+                  <Badge variant={TAG_VARIANT[scenario.tag] ?? 'outline'}>
+                    {scenario.tag}
+                  </Badge>
+                )}
                 <span className="text-xs text-ink-muted">
                   예상 시간 {scenario.durationMinutes}분
                 </span>
@@ -81,17 +87,4 @@ export function ExperienceLayout({
       {bottom}
     </div>
   );
-}
-
-function labelOf(c: Scenario['category']): string {
-  switch (c) {
-    case 'customer-case':
-      return '고객 사례';
-    case 'feature':
-      return '기본 기능';
-    case 'future-concept':
-      return '미래 기능';
-    case 'industry':
-      return '업종별';
-  }
 }
