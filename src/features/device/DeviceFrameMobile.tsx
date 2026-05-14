@@ -14,6 +14,7 @@ import { useTalkStore } from '@/features/talk/store';
 import { useUISimStore } from '@/features/ui-simulation/store';
 import { MobileMessageInput } from '@/features/coworkplus/MessageInput';
 import { MobileMenuDropdown } from '@/features/coworkplus/MobileMenuDropdown';
+import { MobileNoticeCard } from '@/features/coworkplus/MobileNoticeCard';
 import { BizFormModal } from '@/features/coworkplus/BizFormModal';
 import { KakaoMobileShell } from '@/features/kakao/KakaoMobileShell';
 import { MockModal } from '@/components/MockModal';
@@ -143,11 +144,17 @@ function ChatListScreen({
   onTap,
   fallbackMessages: _fallback,
   emptyState: _emptyState,
-  isKakao = false,
+  isKakao: _isKakao = false,
 }: ChatListScreenProps) {
   const invited = chatList.filter((c) => c.unread > 0);
   const joined = chatList.filter((c) => c.unread === 0);
   const noJoined = joined.length === 0;
+
+  const rawNotices = useUISimStore((s) => s.mobileNotices);
+  const liveNotices = useMemo(
+    () => rawNotices.filter((n) => !n.consumed),
+    [rawNotices]
+  );
 
   return (
     <>
@@ -164,33 +171,28 @@ function ChatListScreen({
       </div>
 
       {invited.length > 0 && (
-        <div className="shrink-0 bg-surface-subtle/60 px-3 pb-3 pt-2">
-          <p className="mb-2 text-[11px] text-ink-secondary">
-            <strong className="text-ink-primary">{invited.length}</strong>개의 대화방에 초대되었습니다.
+        <div className="shrink-0 space-y-2 bg-surface-subtle/60 px-3 pb-3 pt-2">
+          <p className="text-[11px] text-ink-secondary">
+            <strong className="text-ink-primary">{invited.length}</strong>건의
+            카카오 알림톡이 도착했습니다.
           </p>
-          <ul className="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
-            {invited.map((c) => (
-              <li key={c.roomId} className="shrink-0">
-                <button
-                  onClick={() => onTap(c.roomId, c.noticeId)}
-                  className={cn(
-                    'flex w-[120px] flex-col gap-1 rounded-lg border border-surface-border bg-surface-card px-3 py-2.5 text-left shadow-soft transition-shadow hover:shadow-elev',
-                    isKakao && 'bg-white'
-                  )}
-                >
-                  <span className="truncate text-xs font-semibold text-ink-primary">
-                    {c.title}
-                  </span>
-                  <span className="truncate text-[11px] text-ink-secondary">
-                    {c.lastMessage || '조승열'}
-                  </span>
-                  <span className="mt-1 text-[10px] text-ink-muted">
-                    {c.time}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {invited.map((c) => {
+            // mobileNotices 에 매칭되는 notice 가 있으면 풍부한 body / ctaLabel 사용
+            const notice = liveNotices.find((n) => n.id === c.noticeId);
+            const cta = notice?.ctaLabel ?? (c.kind === 'kakao-invite' ? '초대 수락' : '대화하기');
+            const body = notice?.body ?? c.lastMessage;
+            const title = notice?.title ?? c.title;
+            return (
+              <MobileNoticeCard
+                key={c.roomId}
+                title={title}
+                body={body}
+                ctaLabel={cta}
+                time={c.time}
+                onTap={() => onTap(c.roomId, c.noticeId)}
+              />
+            );
+          })}
         </div>
       )}
 

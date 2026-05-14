@@ -6,6 +6,20 @@ import { meta as aiMeta } from './ai-smart-assist.meta';
 import { meta as nextGenMeta } from './next-gen-comm.meta';
 import { meta as gaonMeta } from './gaon-cable-sales-bridge.meta';
 import { meta as skRentalMeta } from './sk-rental-sales-bridge.meta';
+import { meta as skAlimtalkInviteMeta } from './sk-feature-alimtalk-invite.meta';
+import { meta as skFcmPushInboundMeta } from './sk-feature-fcm-push-inbound.meta';
+import { meta as skMultiImageMeta } from './sk-feature-multi-image.meta';
+import { meta as skDbMartExportMeta } from './sk-feature-db-mart-export.meta';
+import { meta as skMyPartnersMeta } from './sk-feature-my-partners.meta';
+import { meta as skAdminPartnerTransferMeta } from './sk-feature-admin-partner-transfer.meta';
+import { meta as skContactSyncMeta } from './sk-feature-contact-sync.meta';
+import { meta as skBiometricLoginMeta } from './sk-feature-biometric-login.meta';
+import { meta as skPc2faPushMeta } from './sk-feature-pc-2fa-push.meta';
+import { meta as skPartnerMetadataBadgeMeta } from './sk-feature-partner-metadata-badge.meta';
+import { meta as skPasswordToggleMeta } from './sk-feature-password-toggle.meta';
+import { meta as skFlowNewCustomerLifecycleMeta } from './sk-flow-new-customer-lifecycle.meta';
+import { meta as skFlowWorkdayMeta } from './sk-flow-workday.meta';
+import { meta as skFlowHandoverVsLeaveMeta } from './sk-flow-handover-vs-leave.meta';
 import { meta as hanaOcrSingleMeta } from './hana-feature-ocr-single.meta';
 import { meta as hanaMultiSelectMeta } from './hana-feature-multi-select-ocr.meta';
 import { meta as hanaTaskChipMeta } from './hana-feature-task-chip.meta';
@@ -99,6 +113,62 @@ export const scenarioRegistry: ScenarioRegistryEntry[] = [
   {
     ...skRentalMeta,
     load: lazy(() => import('./sk-rental-sales-bridge')),
+  },
+  {
+    ...skAlimtalkInviteMeta,
+    load: lazy(() => import('./sk-feature-alimtalk-invite')),
+  },
+  {
+    ...skFcmPushInboundMeta,
+    load: lazy(() => import('./sk-feature-fcm-push-inbound')),
+  },
+  {
+    ...skMultiImageMeta,
+    load: lazy(() => import('./sk-feature-multi-image')),
+  },
+  {
+    ...skContactSyncMeta,
+    load: lazy(() => import('./sk-feature-contact-sync')),
+  },
+  {
+    ...skBiometricLoginMeta,
+    load: lazy(() => import('./sk-feature-biometric-login')),
+  },
+  {
+    ...skPc2faPushMeta,
+    load: lazy(() => import('./sk-feature-pc-2fa-push')),
+  },
+  {
+    ...skMyPartnersMeta,
+    load: lazy(() => import('./sk-feature-my-partners')),
+  },
+  {
+    ...skPartnerMetadataBadgeMeta,
+    load: lazy(() => import('./sk-feature-partner-metadata-badge')),
+  },
+  {
+    ...skAdminPartnerTransferMeta,
+    load: lazy(() => import('./sk-feature-admin-partner-transfer')),
+  },
+  {
+    ...skPasswordToggleMeta,
+    load: lazy(() => import('./sk-feature-password-toggle')),
+  },
+  {
+    ...skDbMartExportMeta,
+    load: lazy(() => import('./sk-feature-db-mart-export')),
+  },
+  {
+    ...skFlowNewCustomerLifecycleMeta,
+    load: lazy(() => import('./sk-flow-new-customer-lifecycle')),
+  },
+  {
+    ...skFlowWorkdayMeta,
+    load: lazy(() => import('./sk-flow-workday')),
+  },
+  {
+    ...skFlowHandoverVsLeaveMeta,
+    load: lazy(() => import('./sk-flow-handover-vs-leave')),
   },
   { ...aiMeta, load: lazy(() => import('./ai-smart-assist')) },
   { ...nextGenMeta, load: lazy(() => import('./next-gen-comm')) },
